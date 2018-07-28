@@ -8,7 +8,7 @@ function GetCard(options) {
     var isSetDefined = set != '';
 
     return new Promise((resolve, reject) => {
-        mtgsdk.card.where({ name: name, set: isPromo ? '' : set, orderBy: "multiverseid" }).then((cards) => {
+        mtgsdk.card.where({ name: name, set: isPromo ? '' : set }).then((cards) => {
             var matchCards = function () {
                 // Sort by descending multiverse id (most recent first)
                 cards.sort((a,b) => {
