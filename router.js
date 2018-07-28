@@ -14,10 +14,6 @@ module.exports = express.Router()
     next();
 })
 
-.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname + "/index.html"));
-})
-
 .get("/api/deck/:slug", (req, res) => {
     tappedout.getDeck(req.params.slug).then(deck => {
         res.send(deck);
@@ -34,6 +30,10 @@ module.exports = express.Router()
     mtgimg.getImage(req.query).then(results => {
         res.send(results);
     }, error => errorHandler(error, res));
+})
+
+.get("/*", (req, res) => {
+    res.sendFile(path.join(__dirname + "/index.html"));
 })
 
 function errorHandler(error, res) {

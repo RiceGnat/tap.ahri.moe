@@ -8,7 +8,7 @@ function GetCard(options) {
     var isSetDefined = set != '';
 
     return new Promise((resolve, reject) => {
-        mtgsdk.card.where({ name: name, set: isPromo ? '' : set }).then((cards) => {
+        mtgsdk.card.where({ name: name, set: isPromo ? '' : set, orderBy: "multiverseid" }).then((cards) => {
             var matchCards = function () {
                 // Sort by descending multiverse id (most recent first)
                 cards.sort((a,b) => {
@@ -16,10 +16,16 @@ function GetCard(options) {
                     var bId = b.multiverseid ? b.multiverseid : 0;
                     return (aId < bId) ? 1 : ((aId > bId) ? -1 : 0);
                 });
+
                 for (var i = 0; i < cards.length; i++) {
+                    console.log(cards[i].multiverseid + " " + cards[i].setName);
+                }
+                for (var i = 0; i < cards.length; i++) {
+                    console.log(!isSetDefined && cards[i].rarity != "Special" && !cards[i].setName.startsWith("Un"));
                     if (cards[i].name.toLowerCase() == name.toLowerCase() && (
                         isSetDefined && (cards[i].set == set || isPromo && cards[i].set.startsWith("p")) ||
-                        !isSetDefined && cards[i].rarity != "Special")) {
+                        !isSetDefined && cards[i].rarity != "Special" && !cards[i].setName.startsWith("Un"))) {
+                            
                         card = cards[i];
                         break;
                     }
@@ -51,12 +57,12 @@ function GetCard(options) {
                     cmc: card.cmc,
                     set: card.set,
                     imgset: result.set.magicCardsInfoCode,
-                    border: result.set.border
+                    border: card.border ? card.border : result.set.border
                 };
 
                 // Borderless cards
                 if (ret.set == "MPS_AKH")
-                    set = "borderless";
+                    ret.border = "borderless";
 
                 resolve(ret);
             }, (error) => { reject(error); });

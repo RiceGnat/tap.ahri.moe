@@ -171,6 +171,7 @@
             right: 0;
             padding: 4px;
             overflow: hidden;
+            z-index: 1;
             opacity: 0;
             transform: scaleY(0);
             color: white;
@@ -215,8 +216,13 @@
             display: flex;
         }
 
-        #searchForm {
-            padding: 25px 0;
+        #searchForm,
+        #pasteForm {
+            padding: 25px 15px 25px 0;
+        }
+
+        #pasteForm input {
+            vertical-align: top;
         }
 
         #sortModes {
@@ -253,12 +259,11 @@
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script>
-        var host = "http://tap.ahri.moe";
+        var host = "http://localhost:8080";
         var deck;
         var loadedCards;
         var boards = ["main", "side", "maybe", "acquire"];
         var types = ["sorcery", "instant", "enchantment", "artifact", "planeswalker", "creature", "land"];
-        var initialQuery;
 
         function $createNewCardObject() {
             return $("<div>", { "class": "card" })
@@ -288,22 +293,7 @@
                         .append(`<li><b>Cards</b>&ensp;${deck.count}</li>`)
                         .append(`<br /><li><b>Description</b><br />${deck.description}</li>`);
 
-                    deck.list.forEach(function (card) {
-                        card.$object = [];
-
-                        for (var i = 0; i < card.quantity; i++) {
-                            var cardDiv = $createNewCardObject().appendTo("#defaultView");
-
-                            $(".card-title", cardDiv).text(card.name);
-                            $(".card-info .left", cardDiv).html(card.set + "&emsp;" + card.language.toUpperCase() + "&emsp;" +
-                                (card.signed ? "Signed" : "") + (card.foil ? " Foil" : "") + (card.alter ? " Alter" : ""));
-                            cardDiv.addClass(card.board.toLowerCase());
-
-                            card.$object.push(cardDiv);
-                        }
-
-                        GetCardProperties(card);
-                    });
+                    LoadCards();
                 }).fail(function (xhr, textStatus, err) {
                     $("#deckTitle").html("Couldn't load deck");
                 }).always(function () {
@@ -314,12 +304,77 @@
             })
         }
 
+        function LoadCards() {
+            deck.list.forEach(function (card) {
+                card.$object = [];
+
+                for (var i = 0; i < card.quantity; i++) {
+                    var cardDiv = $createNewCardObject().appendTo("#defaultView");
+
+                    $(".card-title", cardDiv).text(card.name);
+                    $(".card-info .left", cardDiv).html(card.set + "&emsp;" + card.language.toUpperCase() + "&emsp;" +
+                        (card.signed ? "Signed" : "") + (card.foil ? " Foil" : "") + (card.alter ? " Alter" : ""));
+                    cardDiv.addClass(card.board.toLowerCase());
+
+                    card.$object.push(cardDiv);
+                }
+
+                GetCardProperties(card);
+            });
+        }
+
+        function LoadPaste(decklist) {
+            var regex = /^(\d{1,3})x (.+)$/gm;
+            var m = regex.exec(decklist);
+            var cards = [];
+            var count = 0;
+            var i = 0;
+            while (m != null) {
+                var quantity = parseInt(m[1]);
+                var name = m[2].trim();
+                cards[i] = {
+                    name: name,
+                    board: "main",
+                    quantity: quantity,
+                    set: "",
+                    foil: false,
+                    alter: false,
+                    signed: false,
+                    language: "en"
+                }
+                count += quantity;
+                i++;
+                m = regex.exec(decklist)
+            }
+            deck = {
+                count: count,
+                list: cards
+            }
+
+            ChangeView("", function () {
+                $("#deckTitle").empty();
+                $("#deckInfo").empty();
+                $(".card-area").empty();
+                loadedCards = 0;
+
+                $("#deckTitle").text("Deck paste");
+                $("#deckInfo").append(`<li><b>Cards</b>&ensp;${deck.count}</li>`);
+
+                LoadCards();
+
+                $("#deckTitle").removeClass("hidden");
+                $("#deckInfo").removeClass("hidden");
+                $("#defaultView").show().removeClass("hidden");
+            })
+        }
+
         function GetCardImage(card, oracle) {
             var query = {
                 name: card.name,
-                set: oracle.imgset ? oracle.imgset : card.set,
+                set: oracle.imgset ? oracle.imgset : oracle.set,
                 lang: card.language
             };
+            console.log(oracle);
             $.get(`${host}/api/img?${$.param(query)}`, null, function (response) {
                 for (var i = 0; i < card.quantity; i++) {
                     card.$object[i].data("image", response);
@@ -330,7 +385,6 @@
                         card.$object[i].children(".frame").append("<div class='foil layer'></div>");
                         card.$object[i].addClass("foil");
                     }
-
                     card.$object[i].children(".frame").addClass(card.$object[i].properties.border);
 
                     $("img", card.$object[i]).one("load", function () {
@@ -478,8 +532,14 @@
                 return false;
             })
 
-            if (initialQuery) {
-                $("#deckSearch").val(initialQuery);
+            $("#pasteForm").on("submit", function () {
+                LoadPaste($("#deckPaste").val());
+                return false;
+            })
+
+            if (window.location.pathname !== "/") {
+                var slug = window.location.pathname.replace(/\/$/, "").replace(/^\//, "");
+                $("#deckSearch").val(slug);
                 $("#searchForm").submit();
             }
 
@@ -493,7 +553,10 @@
                 <form id="searchForm">
                     <input type="text" id="deckSearch" autocomplete="off" /> <input type="submit" id="loadDeck" value="Load deck" />
                 </form>
-                <ul id="sortModes">
+                <form id="pasteForm">
+                    <textarea id="deckPaste" class="modern"></textarea> <input type="submit" id="loadPaste" value="Load deck paste" />
+                </form>
+                <ul id="sortModes" style="display:none">
                     <li>
                         <a href="javascript:void(0)">Default</a>
                     </li>
