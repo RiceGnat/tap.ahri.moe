@@ -11,7 +11,6 @@ module.exports = express.Router()
     res.append("Access-Control-Allow-Origin", ["*"]);
     res.append("Access-Control-Allow-Methods", "GET");
     res.append("Access-Control-Allow-Headers", "Content-Type");
-    res.append("Content-Type", "application/json; charset=utf-8")
     next();
 })
 
