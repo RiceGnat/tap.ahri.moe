@@ -10,6 +10,12 @@ function GetCard(options) {
     return new Promise((resolve, reject) => {
         mtgsdk.card.where({ name: name, set: isPromo ? '' : set }).then((cards) => {
             var matchCards = function () {
+                // Sort by descending multiverse id (most recent first)
+                cards.sort((a,b) => {
+                    var aId = a.multiverseid ? a.multiverseid : 0;
+                    var bId = b.multiverseid ? b.multiverseid : 0;
+                    return (aId < bId) ? 1 : ((aId > bId) ? -1 : 0);
+                });
                 for (var i = 0; i < cards.length; i++) {
                     if (cards[i].name.toLowerCase() == name.toLowerCase() && (
                         isSetDefined && (cards[i].set == set || isPromo && cards[i].set.startsWith("p")) ||
