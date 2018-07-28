@@ -377,7 +377,6 @@
                 set: oracle.imgset ? oracle.imgset : oracle.set,
                 lang: card.language
             };
-            console.log(oracle);
             $.get(`${host}/api/img?${$.param(query)}`, null, function (response) {
                 for (var i = 0; i < card.quantity; i++) {
                     card.$object[i].data("image", response);
