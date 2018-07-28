@@ -22,7 +22,6 @@ function GetImage(options) {
         query += "+l:" + lang;
     }
 
-
     return new Promise((resolve, reject) => { 
         request.get(`${host}${queryRoot}${query}`, (err, resp, body) => {
             if (err) reject(err);
@@ -38,11 +37,17 @@ function GetImage(options) {
 
                 if (results.length == 0 && options.lang != "") {
                     options.lang = "";
-                    GetImage(options);
+                    GetImage(options).then(
+                        newResults => resolve(newResults),
+                        error => reject(error)
+                    );
                 }
                 else if (results.length == 0 && options.set != "") {
                     options.set = "";
-                    GetImage(options);
+                    GetImage(options).then(
+                        newResults => resolve(newResults),
+                        error => reject(error)
+                    );
                 }
                 else {
                     resolve(results);

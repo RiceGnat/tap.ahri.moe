@@ -8,14 +8,15 @@ const mtgora = require("./mtg-oracle.js");
 module.exports = express.Router()
 
 .use((req, res, next) => {
-    res.append('Access-Control-Allow-Origin', ['*']);
-    res.append('Access-Control-Allow-Methods', 'GET');
-    res.append('Access-Control-Allow-Headers', 'Content-Type');
+    res.append("Access-Control-Allow-Origin", ["*"]);
+    res.append("Access-Control-Allow-Methods", "GET");
+    res.append("Access-Control-Allow-Headers", "Content-Type");
+    res.append("Content-Type", "application/json; charset=utf-8")
     next();
 })
 
 .get("/", (req, res) => {
-    res.sendFile(path.join(__dirname + '/index.html'));
+    res.sendFile(path.join(__dirname + "/index.html"));
 })
 
 .get("/api/deck/:slug", (req, res) => {
