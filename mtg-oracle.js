@@ -18,10 +18,6 @@ function GetCard(options) {
                 });
 
                 for (var i = 0; i < cards.length; i++) {
-                    console.log(cards[i].multiverseid + " " + cards[i].setName);
-                }
-                for (var i = 0; i < cards.length; i++) {
-                    console.log(!isSetDefined && cards[i].rarity != "Special" && !cards[i].setName.startsWith("Un"));
                     if (cards[i].name.toLowerCase() == name.toLowerCase() && (
                         isSetDefined && (cards[i].set == set || isPromo && cards[i].set.startsWith("p")) ||
                         !isSetDefined && cards[i].rarity != "Special" && !cards[i].setName.startsWith("Un"))) {
