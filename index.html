@@ -245,7 +245,7 @@
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script>
-        var host = "http://localhost:8080/";
+        var host = "http://tap.ahri.moe";
         var deck;
         var loadedCards;
         var boards = ["main", "side", "maybe", "acquire"];
@@ -271,7 +271,7 @@
                 $(".card-area").empty();
                 loadedCards = 0;
 
-                $.get(`${host}deck/${$("#deckSearch").val()}`, null, function (response) {
+                $.get(`${host}/api/deck/${$("#deckSearch").val()}`, null, function (response) {
                     deck = response;
 
                     $("#deckTitle").html(`<a href="${deck.url}" target="_blank">${deck.name}</a>`);
@@ -283,13 +283,13 @@
                     deck.list.forEach(function (card) {
                         card.$object = [];
 
-                        for (var i = 0; i < card.Qty; i++) {
+                        for (var i = 0; i < card.quantity; i++) {
                             var cardDiv = $createNewCardObject().appendTo("#defaultView");
 
-                            $(".card-title", cardDiv).text(card.Name);
-                            $(".card-info .left", cardDiv).html(card.Printing + "&emsp;" + card.Language.toUpperCase() + "&emsp;" +
-                                (card.Signed ? "Signed" : "") + (card.Foil ? " Foil" : "") + (card.Alter ? " Alter" : ""));
-                            cardDiv.addClass(card.Board.toLowerCase());
+                            $(".card-title", cardDiv).text(card.name);
+                            $(".card-info .left", cardDiv).html(card.set + "&emsp;" + card.language.toUpperCase() + "&emsp;" +
+                                (card.signed ? "Signed" : "") + (card.foil ? " Foil" : "") + (card.alter ? " Alter" : ""));
+                            cardDiv.addClass(card.board.toLowerCase());
 
                             card.$object.push(cardDiv);
                         }
@@ -308,17 +308,17 @@
 
         function GetCardImage(card, oracle) {
             var query = {
-                name: card.Name,
-                set: oracle.imgset ? oracle.imgset : card.Printing,
-                lang: card.Language
+                name: card.name,
+                set: oracle.imgset ? oracle.imgset : card.set,
+                lang: card.language
             };
-            $.get(`${host}img?${$.param(query)}`, null, function (response) {
-                for (var i = 0; i < card.Qty; i++) {
+            $.get(`${host}/api/img?${$.param(query)}`, null, function (response) {
+                for (var i = 0; i < card.quantity; i++) {
                     card.$object[i].data("image", response);
 
                     card.$object[i].children(".frame").append(`<img class="hidden" src="${response[0].url}" alt="${response[0].name}" />`);
 
-                    if (card.Foil) {
+                    if (card.foil) {
                         card.$object[i].children(".frame").append("<div class='foil layer'></div>");
                         card.$object[i].addClass("foil");
                     }
@@ -336,13 +336,13 @@
 
         function GetCardProperties(card) {
             var query = {
-                name: card.Name,
-                set: card.Printing
+                name: card.name,
+                set: card.set
             };
-            $.get(`${host}oracle?${$.param(query)}`, null, function (response) {
+            $.get(`${host}/api/oracle?${$.param(query)}`, null, function (response) {
                 GetCardImage(card, response);
 
-                for (var i = 0; i < card.Qty; i++) {
+                for (var i = 0; i < card.quantity; i++) {
                     card.$object[i].properties = response;
 
                     response.types.forEach(function (type) {
@@ -411,7 +411,7 @@
         function StackCards() {
             deck.list.forEach(function (card) {
                 var stack = $("#sortedView .card").map(function () {
-                    if (card.Name == $(".card-title", this).text()) {
+                    if (card.name == $(".card-title", this).text()) {
                         return this;
                     }
                 });

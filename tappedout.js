@@ -106,7 +106,13 @@ function GetDeckCards(slug) {
 }
 
 function GetDeck(slug) {
-    return Promise.all([GetDeckInfo(slug), GetDeckCards(slug)]);
+    return new Promise((resolve, reject) => {
+        Promise.all([GetDeckInfo(slug), GetDeckCards(slug)]).then(result => {
+            var deck = result[0];
+            deck.list = result[1];
+            resolve(deck);
+        }, error => reject(error));
+    });
 }
 
 module.exports = {

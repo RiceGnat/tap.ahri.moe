@@ -18,22 +18,22 @@ module.exports = express.Router()
     res.sendFile(path.join(__dirname + '/index.html'));
 })
 
-.get("/deck/:slug", (req, res) => {
-    tappedout.getDeck(req.params.slug).then((deck) => {
+.get("/api/deck/:slug", (req, res) => {
+    tappedout.getDeck(req.params.slug).then(deck => {
         res.send(deck);
-    }, (error) => errorHandler(error, res));
+    }, error => errorHandler(error, res));
 })
 
-.get("/oracle", (req, res) => {
-    mtgora.getCard(req.query).then((card) => {
+.get("/api/oracle", (req, res) => {
+    mtgora.getCard(req.query).then(card => {
         res.send(card);
-    }, (error) => errorHandler(error, res));
+    }, error => errorHandler(error, res));
 })
 
-.get("/img", (req, res) => {
-    mtgimg.getImage(req.query).then((results) => {
+.get("/api/img", (req, res) => {
+    mtgimg.getImage(req.query).then(results => {
         res.send(results);
-    }, (error) => errorHandler(error, res));
+    }, error => errorHandler(error, res));
 })
 
 function errorHandler(error, res) {
