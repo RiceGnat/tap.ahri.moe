@@ -386,7 +386,6 @@
                         if (deck.commander) {
                             $(".section.commander", context).show();
                             deck.commander.forEach(function (element) {
-                                console.log(cards.filter(`.card:contains(${element})`));
                                 cards.filter(`.card:contains(${element})`).appendTo(".section.commander .card-area", context);
                             });
                             $("#sortedView").addClass("commander");
