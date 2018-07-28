@@ -72,7 +72,7 @@
             transition: z-index 0s step-start 1ms;
         }
 
-            .card .frame {
+            .card > .frame {
                 position: relative;
                 width: 192px;
                 min-height: 277px;
@@ -83,7 +83,7 @@
                 overflow: hidden;
             }
 
-            .card .frame * {
+            .card > .frame * {
                 pointer-events: none;
             }
 
@@ -97,11 +97,11 @@
                 left: -4px;
             }
 
-            .card .frame.silver {
+            .card > .frame.silver {
                 border-color: darkgrey;
             }
 
-            .card .frame.borderless {
+            .card > .frame.borderless {
                 width: 210px;
                 min-height: 295px;
                 border: 0;
@@ -121,7 +121,7 @@
                 background-size: 150% 100%;
             }
 
-            .card.borderless img {
+            .card > .frame.borderless > img {
                 border-radius: 8px;
                 width: 100%;
                 height: 100%;
@@ -129,7 +129,7 @@
                 left: 0;
             }
 
-            .card.borderless .foil.layer {
+            .card > .frame.borderless > .foil.layer {
                 border-radius: 8px;
             }
 
