@@ -74,12 +74,13 @@
 
             .card .frame {
                 position: relative;
-                width: 200px;
-                min-height: 285px;
+                width: 192px;
+                min-height: 277px;
                 background: black;
-                border: 5px solid black;
+                border: 9px solid black;
                 border-radius: 8px;
                 filter: contrast(105%);
+                overflow: hidden;
             }
 
             .card .frame * {
@@ -88,12 +89,19 @@
 
             .card img {
                 display: block;
-                width: 100%;
-                height: 100%;
+                width: 200px;
+                height: 285px;
                 transition: opacity linear .5s;
+                position: absolute;
+                top: -4px;
+                left: -4px;
             }
 
-            .card.borderless .frame {
+            .card .frame.silver {
+                border-color: darkgrey;
+            }
+
+            .card .frame.borderless {
                 width: 210px;
                 min-height: 295px;
                 border: 0;
@@ -323,9 +331,7 @@
                         card.$object[i].addClass("foil");
                     }
 
-                    if (oracle.set == "MPS_AKH") {
-                        card.$object[i].addClass("borderless");
-                    }
+                    card.$object[i].children(".frame").addClass(card.$object[i].properties.border);
 
                     $("img", card.$object[i]).one("load", function () {
                         $(this).removeClass("hidden");

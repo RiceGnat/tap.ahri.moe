@@ -54,6 +54,10 @@ function GetCard(options) {
                     border: result.set.border
                 };
 
+                // Borderless cards
+                if (ret.set == "MPS_AKH")
+                    set = "borderless";
+
                 resolve(ret);
             }, (error) => { reject(error); });
         }, (error) => { reject(error); });
