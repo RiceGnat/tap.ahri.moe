@@ -1,0 +1,101 @@
+body.modern {
+    font-family: "Segoe UI";
+    font-weight: 400;
+}
+
+.modern a {
+    color: #444444;
+}
+
+.modern h3 {
+    margin-bottom: 10px;
+}
+
+.modern h4 {
+    margin-bottom: 10px;
+}
+
+.modern ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.container {
+    padding: 0 0 0 50px;
+}
+
+.header {
+    padding-right: 50px;
+}
+
+.view {
+    transition: opacity linear .5s;
+}
+
+.hidden {
+    opacity: 0;
+}
+
+.section {
+    margin-bottom: 60px;
+    -ms-user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+    .section .count {
+        opacity: .5;
+        margin-left: 20px;
+    }
+
+    .section .section {
+        display: inline-block;
+        margin-right: 60px;
+    }
+
+#controlBar {
+    display: flex;
+}
+
+#searchForm,
+#pasteForm {
+    padding: 25px 15px 25px 0;
+}
+
+#pasteForm input {
+    vertical-align: top;
+}
+
+#sortModes {
+    display: flex;
+    margin: 0 25px;
+    font-size: 150%;
+    font-weight: 300;
+}
+
+    #sortModes li {
+        padding: 20px 10px;
+    }
+
+#deckTitle,
+#deckInfo {
+    transition: opacity linear .5s;
+}
+
+#deckInfo {
+    margin: 0 0 10px 0;
+    padding: 5px;
+}
+
+    #deckInfo li {
+        display: inline-block;
+        margin-right: 20px;
+        margin-bottom: 5px;
+    }
+
+#sortedView:not(.commander) .card-area > .card,
+#sortedView.commander .card-area > .card.land {
+    margin-bottom: 91px;
+}

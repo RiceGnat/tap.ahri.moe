@@ -3,17 +3,34 @@
   "version": "0.0.1",
   "main": "server.js",
   "scripts": {
+    "pack": "webpack --config ./webpack.config.js --mode=production",
     "start": "node server.js"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/RiceGnat/tap.ahri.moe.git"
   },
+  "babel": {
+    "presets": [
+      "env",
+      "react"
+    ]
+  },
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
     "csv-parse": "^2.5.0",
     "express": "^4.16.3",
     "mtgsdk": "^0.3.0",
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1",
     "request": "^2.87.0"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "webpack": "^4.16.3",
+    "webpack-cli": "^3.1.0"
   }
 }

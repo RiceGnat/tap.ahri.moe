@@ -5,261 +5,8 @@
     <meta charset="utf-8" />
     <title></title>
     <link rel="stylesheet" type="text/css" href="http://test-realm.ricegnat.com/styling/modern/modern.css" />
-    <style>
-        body.modern {
-            font-family: "Segoe UI";
-            font-weight: 400;
-        }
-
-        .modern a {
-            color: #444444;
-        }
-
-        .modern h3 {
-            margin-bottom: 10px;
-        }
-
-        .modern h4 {
-            margin-bottom: 10px;
-        }
-
-        .modern ul {
-            margin: 0;
-            padding: 0;
-            list-style: none;
-        }
-
-        .container {
-            padding: 0 0 0 50px;
-        }
-
-        .header {
-            padding-right: 50px;
-        }
-
-        .view {
-            transition: opacity linear .5s;
-        }
-
-        .hidden {
-            opacity: 0;
-        }
-
-        .section {
-            margin-bottom: 60px;
-            -ms-user-select: none;
-            -moz-user-select: none;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-
-            .section .count {
-                opacity: .5;
-                margin-left: 20px;
-            }
-
-            .section .section {
-                display: inline-block;
-                margin-right: 60px;
-            }
-
-        .card {
-            display: inline-block;
-            vertical-align: top;
-            margin: 1px;
-            position: relative;
-            z-index: 0;
-            transition: z-index 0s step-start 1ms;
-        }
-
-            .card > .frame {
-                position: relative;
-                width: 192px;
-                min-height: 277px;
-                background: black;
-                border: 9px solid black;
-                border-radius: 8px;
-                filter: contrast(105%);
-                overflow: hidden;
-            }
-
-            .card > .frame * {
-                pointer-events: none;
-            }
-
-            .card img {
-                display: block;
-                width: 200px;
-                height: 285px;
-                transition: opacity linear .5s;
-                position: absolute;
-                top: -4px;
-                left: -4px;
-            }
-
-            .card > .frame.silver {
-                border-color: darkgrey;
-            }
-
-            .card > .frame.borderless {
-                width: 210px;
-                min-height: 295px;
-                border: 0;
-                background: none;
-            }
-
-            .card .foil.layer {
-                position: absolute;
-                top: 0;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                opacity: 0.3;
-                mix-blend-mode: overlay;
-                background-image: linear-gradient(to bottom right, magenta, red, orange, yellow, lime, cyan, magenta, red);
-                animation: foilshift 3s ease infinite;
-                background-size: 150% 100%;
-            }
-
-            .card > .frame.borderless > img {
-                border-radius: 8px;
-                width: 100%;
-                height: 100%;
-                top: 0;
-                left: 0;
-            }
-
-            .card > .frame.borderless > .foil.layer {
-                border-radius: 8px;
-            }
-
-            .card .card {
-                position: absolute;
-                top: 0;
-                margin: 30px 0 0 0;
-            }
-
-            .card:hover .card:not(:hover) {
-                z-index: -1;
-            }
-
-            .card.held .card {
-                z-index: 0 !important;
-            }
-
-            .card.held-root {
-                z-index: 1;
-            }
-
-        
-
-        @keyframes foilshift {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-
-        .card-title,
-        .card-info {
-            position: absolute;
-            left: 0;
-            right: 0;
-            padding: 4px;
-            overflow: hidden;
-            z-index: 1;
-            opacity: 0;
-            transform: scaleY(0);
-            color: white;
-            background: rgba(0, 0, 0, .8);
-            transition-property: transform, opacity;
-            transition-timing-function: linear;
-            transition-duration: .1s;
-        }
-
-        .card:not(.held) > .frame:hover > .card-title,
-        .card:not(.held) > .frame:hover > .card-info {
-            opacity: 1;
-            transform: scaleY(1);
-            transition-delay: 1s;
-        }
-
-        .card-title {
-            top: 0;
-            transform-origin: top;
-            font-size: 16px;
-            font-weight: 400;
-        }
-
-        .card-info {
-            bottom: 0;
-            transform-origin: bottom;
-            font-size: 12px;
-            display: flex;
-            flex-direction: row;
-        }
-
-            .card-info .left,
-            .card-info .right {
-                padding: 0 2px;
-            }
-
-            .card-info .left {
-                flex-grow: 1;
-            }
-
-        #controlBar {
-            display: flex;
-        }
-
-        #searchForm,
-        #pasteForm {
-            padding: 25px 15px 25px 0;
-        }
-
-        #pasteForm input {
-            vertical-align: top;
-        }
-
-        #sortModes {
-            display: flex;
-            margin: 0 25px;
-            font-size: 150%;
-            font-weight: 300;
-        }
-
-            #sortModes li {
-                padding: 20px 10px;
-            }
-
-        #deckTitle,
-        #deckInfo {
-            transition: opacity linear .5s;
-        }
-
-        #deckInfo {
-            margin: 0 0 10px 0;
-            padding: 5px;
-        }
-
-            #deckInfo li {
-                display: inline-block;
-                margin-right: 20px;
-                margin-bottom: 5px;
-            }
-
-        #sortedView:not(.commander) .card-area > .card,
-        #sortedView.commander .card-area > .card.land {
-            margin-bottom: 91px;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link rel="stylesheet" type="text/css" href="card.css" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script>
         var host = "http://tap.ahri.moe";
@@ -529,10 +276,10 @@
         }
 
         $(function () {
-            $("#searchForm").on("submit", function () {
-                LoadDeck();
-                return false;
-            })
+            // $("#searchForm").on("submit", function () {
+            //     LoadDeck();
+            //     return false;
+            // })
 
             $("#pasteForm").on("submit", function () {
                 LoadPaste($("#deckPaste").val());
@@ -549,12 +296,10 @@
     </script>
 </head>
 <body class="modern">
-    <div class="container">
+    <div id="app">
         <div class="header">
             <div id="controlBar">
-                <form id="searchForm">
-                    <input type="text" id="deckSearch" autocomplete="off" /> <input type="submit" id="loadDeck" value="Load deck" />
-                </form>
+                
                 <form id="pasteForm">
                     <textarea id="deckPaste" class="modern"></textarea> <input type="submit" id="loadPaste" value="Load deck paste" />
                 </form>
@@ -626,5 +371,6 @@
             </div>
         </div>
     </div>
+    <script src="bundle.js"></script>
 </body>
 </html>

@@ -85,7 +85,6 @@ function GetDeckCards(slug) {
                     if (card.Printing == "UN3") card.Printing = "UST";
                     else if (card.Printing == "AKHMPS") card.Printing = "MPS_AKH";
                     else if (card.Printing == "GRV") card.Printing = "PD3";
-                    console.log(card);
 
                     convertedList[i] = {
                         name: card.Name,
