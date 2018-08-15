@@ -79,7 +79,7 @@ function GetDeckCards(slug) {
                     card.Printing = card.Printing.toUpperCase();
             
                     if (card.Language == "") card.Language = "en";
-                    else if (card.Language == "ja") card.Language = "jp";
+                    //else if (card.Language == "ja") card.Language = "jp";
 
                     // Correcting non-standard set codes from Tapped Out
                     if (card.Printing == "UN3") card.Printing = "UST";

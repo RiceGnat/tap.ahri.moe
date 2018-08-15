@@ -2,7 +2,8 @@ const express = require("express");
 
 const tappedout = require("./tappedout.js");
 const mtgimg = require("./mtg-imgs.js");
-const mtgora = require("./mtg-oracle.js");
+const mtgora = require("./mtg-sdk.js");
+const scryfall = require("./mtg-scryfall.js");
 
 module.exports = express.Router()
 
@@ -28,6 +29,12 @@ module.exports = express.Router()
 .get("/img", (req, res) => {
     mtgimg.getImage(req.query).then(results => {
         res.send(results);
+    }, error => errorHandler(error, res));
+})
+
+.get("/scryfall", (req, res) => {
+    scryfall.getCard(req.query).then(card => {
+        res.send(card);
     }, error => errorHandler(error, res));
 })
 
