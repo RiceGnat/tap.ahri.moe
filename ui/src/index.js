@@ -120,7 +120,9 @@ class DeckView extends React.Component {
         super(props);
         this.state = {
             cards: null,
-            loadedCards: 0
+            loadedCards: 0,
+            loaded: false,
+            view: "default"
         }
 
         this.cardLoaded = this.cardLoaded.bind(this);
@@ -142,21 +144,26 @@ class DeckView extends React.Component {
             this.setState({
                 cards: null,
                 loadedCards: 0
-            })
+            });
         }
         else if (deck) {
             if (!this.state.cards) {
                 var cards = [];
                 deck.list.forEach(card => {
-                    cards.push(<Card card={card} onCardLoaded={this.cardLoaded} />);
+                    for (var i = 0; i < card.quantity; i++) {
+                        cards.push(<Card card={card} onCardLoaded={this.cardLoaded} />);
+                    }
                 });
                 this.setState({
                     cards: cards
-                })
+                });
             }
-            // else if (this.state.cards.length == this.state.loadedCards) {
-            //     console.log("all cards loaded");
-            // }
+            else if (!this.state.loaded && this.state.cards.length == this.state.loadedCards) {
+                this.setState({
+                    loaded: true
+                });
+                ChangeView("#sortedView", () => { SortCards(deck); });
+            }
         }
     }
 
@@ -177,6 +184,59 @@ class DeckView extends React.Component {
                 : null}
                 <div id="defaultView" className={"view card-area" + (!this.state.cards ? " hidden" : "")}>
                     {this.state.cards}
+                </div>
+                <div id="sortedView" className="view hidden">
+                    <div className="main section">
+                        <h3>Main<span className="count"></span></h3>
+                        <div className="commander section">
+                            <h4>Commander<span className="count"></span></h4>
+                            <div className="card-area"></div>
+                        </div>
+                        <div className="creature section">
+                            <h4>Creatures<span className="count"></span></h4>
+                            <div className="card-area"></div>
+                        </div>
+                        <div className="sorcery section">
+                            <h4>Sorceries<span className="count"></span></h4>
+                            <div className="card-area"></div>
+                        </div>
+                        <div className="instant section">
+                            <h4>Instants<span className="count"></span></h4>
+                            <div className="card-area"></div>
+                        </div>
+                        <div className="artifact section">
+                            <h4>Artifacts<span className="count"></span></h4>
+                            <div className="card-area"></div>
+                        </div>
+                        <div className="enchantment section">
+                            <h4>Enchantments<span className="count"></span></h4>
+                            <div className="card-area"></div>
+                        </div>
+                        <div className="planeswalker section">
+                            <h4>Planeswalkers<span className="count"></span></h4>
+                            <div className="card-area"></div>
+                        </div>
+                        <div className="land section">
+                            <h4>Lands<span className="count"></span></h4>
+                            <div className="card-area"></div>
+                        </div>
+                        <div className="other section">
+                            <h4>Other<span className="count"></span></h4>
+                            <div className="card-area"></div>
+                        </div>
+                    </div>
+                    <div className="side section">
+                        <h3>Sideboard<span className="count"></span></h3>
+                        <div className="card-area"></div>
+                    </div>
+                    <div className="maybe section">
+                        <h3>Maybe<span className="count"></span></h3>
+                        <div className="card-area"></div>
+                    </div>
+                    <div className="acquire section">
+                        <h3>Acquire<span className="count"></span></h3>
+                        <div className="card-area"></div>
+                    </div>
                 </div>
             </div>
         )
@@ -229,7 +289,7 @@ class Card extends React.Component {
         const cardDetails = this.state.card;
 
         return (
-            <div className="card">
+            <div className={"card " + card.board.toLowerCase() + (cardDetails ? " " + cardDetails.types.join(" ").toLowerCase() : "")}>
                 <div class="frame">
                     <div class="card-title">{card.name}</div>
                     <div class="card-info">

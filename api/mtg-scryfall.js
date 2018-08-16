@@ -21,7 +21,7 @@ function MakeRequest(name, set, lang) {
     var card = null;
 
     // Set up query
-    const query = `${host}/cards/search?q=!"${encodeURIComponent(name)}"+game:paper+lang:${lang}+${isMasterpiece ? "is:masterpiece" : (isPromo ? "is:promo" : "s:" + set)}&order=released&unique=prints`;
+    const query = `${host}/cards/search?q=!"${encodeURIComponent(name)}"+game:paper+lang:${lang}+${(isMasterpiece ? "is" : (isPromo ? "is" : (isSetDefined ? "s:" + set : "") + "+not") + ":promo+not") + ":masterpiece"}&order=released&unique=prints`;
 
     return new Promise((resolve, reject) => {
         // Check cache first
@@ -52,14 +52,20 @@ function MakeRequest(name, set, lang) {
                 // Give up
                 else if (resp.statusCode !== 200) reject(`Scryfall request returned status code ${resp.statusCode}`);
                 else {
-                    
                     // Grab the first result in the list
                     card = body.data[0];
 
                     var images = [];
+                    var backs = [];
                     // Extract all image options if set specified; otherwise, get first only
                     for (var i = 0; i < (isSetDefined ? body.data.length : 1); i++) {
-                        images.push(body.data[i].image_uris.normal);
+                        if (body.data[i].layout === "transform") {
+                            images.push(body.data[i].card_faces[0].image_uris.normal);
+                            backs.push(body.data[i].card_faces[1].image_uris.normal)
+                        }
+                        else {
+                            images.push(body.data[i].image_uris.normal);
+                        }
                     }
 
                     // Extract relevant attributes into return object
@@ -78,7 +84,8 @@ function MakeRequest(name, set, lang) {
                         set: card.set.toUpperCase(),
                         setName: card.set_name,
                         border: card.border_color,
-                        images: images
+                        images: images,
+                        back_images: backs
                     };
 
                     // Cache result
