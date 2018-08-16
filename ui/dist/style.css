@@ -29,6 +29,7 @@ body.modern {
     padding-right: 50px;
 }
 
+.deck-area,
 .view {
     transition: opacity linear .5s;
 }
@@ -81,7 +82,6 @@ body.modern {
 
 #deckTitle,
 #deckInfo {
-    transition: opacity linear .5s;
 }
 
 #deckInfo {

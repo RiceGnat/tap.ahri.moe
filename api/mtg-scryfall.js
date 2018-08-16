@@ -21,7 +21,7 @@ function MakeRequest(name, set, lang) {
     var card = null;
 
     // Set up query
-    const query = `${host}/cards/search?q=!"${encodeURIComponent(name)}"+lang:${lang}+${isMasterpiece ? "is:masterpiece" : (isPromo ? "is:promo" : "s:" + set)}&order=released&unique=prints`;
+    const query = `${host}/cards/search?q=!"${encodeURIComponent(name)}"+game:paper+lang:${lang}+${isMasterpiece ? "is:masterpiece" : (isPromo ? "is:promo" : "s:" + set)}&order=released&unique=prints`;
 
     return new Promise((resolve, reject) => {
         // Check cache first

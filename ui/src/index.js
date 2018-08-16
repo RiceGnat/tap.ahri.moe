@@ -7,21 +7,52 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            deck: null,
+            deckVisible: false,
+            waiting: false,
+            bufferedDeck: null
         }
         
         this.deckLoaded = this.deckLoaded.bind(this);
     }
 
     deckLoaded(deck) {
-        console.log(deck);
-        this.setState({ deck: deck });
+        // If we are mid-transition, defer to buffer
+        if (this.state.waiting) {
+            this.setState({
+                bufferedDeck: deck
+            });
+        }
+        // Unload current deck
+        else if (this.state.deck) {
+            this.setState({
+                deckVisible: false,
+                waiting: true,
+                bufferedDeck: deck
+            });
+            setTimeout(() => {
+                this.setState({
+                    deck: this.state.bufferedDeck,
+                    deckVisible: this.state.bufferedDeck ? true : false,
+                    waiting: false,
+                    bufferedDeck: null
+                })
+            }, 500);
+        }
+        // If no current deck, load immediately
+        else {
+            this.setState({
+                deck: deck,
+                deckVisible: true
+            });
+        }
     }
 
     render() {
         return (
             <div className="container">
                 <DeckLoader onDeckLoaded={this.deckLoaded} />
-                <DeckView deck={this.state.deck} />
+                <DeckView visible={this.state.deckVisible} deck={this.state.deck} />
             </div>
         )
     }
@@ -31,6 +62,7 @@ class DeckLoader extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            error: null,
             inProgress: false,
             searchString: ""
         }
@@ -47,24 +79,24 @@ class DeckLoader extends React.Component {
     }
 
     loadDeck(e) {
+        this.props.onDeckLoaded(null);
         var slug = this.state.searchString.trim();
         this.setState({
+            error: null,
             inProgress: true,
-            searchString: slug
         });
         fetch(`${host}/api/deck/${slug}`)
             .then(res => res.json())
             .then(deck => {
                 this.setState({
+                    error: null,
                     inProgress: false,
-                    searchString: slug
                 });
                 this.props.onDeckLoaded(deck);
             }, error => {
                 this.setState({
                     error: error,
                     inProgress: false,
-                    searchString: slug
                 });
             });
         e.preventDefault();
@@ -87,7 +119,7 @@ class DeckView extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            totalCards: 0,
+            cards: null,
             loadedCards: 0
         }
 
@@ -95,61 +127,101 @@ class DeckView extends React.Component {
     }
 
     cardLoaded() {
-        this.setState((prevState, props) => ({
-            totalCards: prevState.totalCards,
+        this.setState((prevState) => ({
             loadedCards: prevState.loadedCards + 1
         }));
     }
 
+    componentDidMount() {
+        this.setState({});
+    }
+
+    componentDidUpdate(prevProps) {
+        const deck = this.props.deck;
+        if (prevProps.deck !== deck) {
+            this.setState({
+                cards: null,
+                loadedCards: 0
+            })
+        }
+        else if (deck) {
+            if (!this.state.cards) {
+                var cards = [];
+                deck.list.forEach(card => {
+                    cards.push(<Card card={card} onCardLoaded={this.cardLoaded} />);
+                });
+                this.setState({
+                    cards: cards
+                })
+            }
+            // else if (this.state.cards.length == this.state.loadedCards) {
+            //     console.log("all cards loaded");
+            // }
+        }
+    }
+
     render() {
         const deck = this.props.deck;
-        if (deck) {
-            var cards = [];
-            deck.list.forEach(card => {
-                cards.push(<Card card={card} onCardLoaded={this.cardLoaded} />);
-            });
-            
-            return (
-                <div className="deck-area">
-                    <div className="header">
-                        <h2>{deck.url ? <a href={deck.url} target="_blank">{deck.name}</a> : deck.name}</h2>
-                        <ul id="deckInfo">
-                            {deck.author ? <li><b>Creator</b>&ensp;<a href={deck.userpage} target="_blank">{deck.author}</a></li> : null}
-                            {deck.format ? <li><b>Format</b>&ensp;{deck.format}</li> : null}
-                            {deck.count ? <li><b>Cards</b>&ensp;{deck.count}</li> : null}
-                            {deck.description ? <li style={{display: "block"}}><b>Description</b><br />{deck.description}</li> : null}
-                        </ul>
-                    </div>
-                    <div id="defaultView" className="view card-area">
-                        {cards}
-                    </div>
+        return (
+            <div className={"deck-area" + (!this.props.visible ? " hidden" : "")}>
+                {deck ?
+                <div className="header">
+                    <h2 id="deckTitle">{deck.url ? <a href={deck.url} target="_blank">{deck.name}</a> : deck.name}</h2>
+                    <ul id="deckInfo">
+                        {deck.author ? <li><b>Creator</b>&ensp;<a href={deck.userpage} target="_blank">{deck.author}</a></li> : null}
+                        {deck.format ? <li><b>Format</b>&ensp;{deck.format}</li> : null}
+                        {deck.count ? <li><b>Cards</b>&ensp;{deck.count}</li> : null}
+                        {deck.description ? <li style={{display: "block"}}><b>Description</b><br />{deck.description}</li> : null}
+                    </ul>
                 </div>
-            )
-        }
-        else return null;
+                : null}
+                <div id="defaultView" className={"view card-area" + (!this.state.cards ? " hidden" : "")}>
+                    {this.state.cards}
+                </div>
+            </div>
+        )
     }
 }
 
 class Card extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {}
+        this.state = {
+            card: null,
+            imgLoaded: false
+        }
+
+        this.imageLoaded = this.imageLoaded.bind(this);
     }
 
     imageLoaded() {
-        $("img", this).removeClass("hidden");
+        this.setState({
+            imgLoaded: true
+        })
     }
 
     componentDidMount() {
+        this.setState({});
+    }
+
+    componentDidUpdate(prevProps) {
         const card = this.props.card;
-        fetch(`${host}/api/scryfall?name=${encodeURIComponent(card.name)}&set=${card.set}&lang=${card.language}`)
-            .then(res => res.json())
-            .then(result => {
-                this.setState({
-                    card: result
-                });
-                this.props.onCardLoaded();
+        if (prevProps.card !== card) {
+            this.setState({
+                card: null,
+                imgLoaded: false
             });
+        }
+        else if (!this.state.card) {
+            fetch(`${host}/api/scryfall?name=${encodeURIComponent(card.name)}&set=${card.set}&lang=${card.language}`)
+                .then(res => res.json())
+                .then(result => {
+                    this.setState({
+                        card: result
+                    });
+                    this.props.onCardLoaded();
+                });
+        }
     }
 
     render() {
@@ -164,7 +236,8 @@ class Card extends React.Component {
                         <div class="left">{card.set}&emsp;{card.language.toUpperCase()}&emsp;{card.signed ? "Signed" : ""}{card.foil ? " Foil" : ""}{card.alter ? " Alter" : ""}</div>
                         <div class="right"></div>
                     </div>
-                    {cardDetails ? <img className="hidden" onLoad={this.imageLoaded} src={cardDetails.images[0]} alt={cardDetails.printedName} /> : null}
+                    {cardDetails ? <img className={!this.state.imgLoaded ? "hidden" : ""} onLoad={this.imageLoaded} src={cardDetails.images[0]} alt={cardDetails.printedName} /> : null}
+                    {cardDetails && card.foil ? <div class='foil layer'></div> : null}
                 </div>
             </div>
         )

@@ -7,6 +7,11 @@
     z-index: 0;
     vertical-align: top;
     transition: z-index 0s step-start 1ms;
+
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
     .card > .frame {
