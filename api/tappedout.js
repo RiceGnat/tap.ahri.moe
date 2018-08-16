@@ -79,12 +79,12 @@ function GetDeckCards(slug) {
                     card.Printing = card.Printing.toUpperCase();
             
                     if (card.Language == "") card.Language = "en";
-                    //else if (card.Language == "ja") card.Language = "jp";
 
                     // Correcting non-standard set codes from Tapped Out
                     if (card.Printing == "UN3") card.Printing = "UST";
                     else if (card.Printing == "AKHMPS") card.Printing = "MPS_AKH";
                     else if (card.Printing == "GRV") card.Printing = "PD3";
+                    else if (card.Printing == "000" || card.Printing == "PSG") card.Printing = "PROMO";
 
                     convertedList[i] = {
                         name: card.Name,

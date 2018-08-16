@@ -9,9 +9,16 @@ function GetImage(options) {
     var set = options.set;
     var lang = options.lang;
 
+    if (lang === "ja") lang = "jp";
+    
+    const isPromo = set == "PROMO";
+
     var query = encodeURIComponent(`++o!"${name}"`);
     
-    if (set) {
+    if (isPromo) {
+        query += "is:promo";
+    }
+    else if (set) {
         query += "+e:" + set;
     }
     else {

@@ -12,8 +12,8 @@ function GetCard(options) {
     return MakeRequest(name, set, lang);
 }
 
-function MakeRequest(name, set, lang) {
-    const isPromo = set == "000" || set == "PSG";
+function MakeRequest(name, set, lang, retry) {
+    const isPromo = set == "PROMO";
     const isMasterpiece = set.startsWith("MPS");
     const isSetDefined = set != "";
     const isLangDefined = lang != "en";
@@ -37,14 +37,14 @@ function MakeRequest(name, set, lang) {
                 // Fallbacks in case of missing cards (looking at you, Anguished Unmaking)
                 // If no card is found and lang is specified, try defaulting lang to English
                 else if (resp.statusCode === 404 && isLangDefined) {
-                    MakeRequest(name, set, "en").then(
+                    MakeRequest(name, set, "en", true).then(
                         results => resolve(results),
                         error => reject(error)
                     );
                 }
                 // If that didn't work, try removing set restriction
                 else if (resp.statusCode === 404 && isSetDefined) {
-                    MakeRequest(name, "", lang).then(
+                    MakeRequest(name, "", lang, true).then(
                         results => resolve(results),
                         error => reject(error)
                     );
@@ -85,7 +85,8 @@ function MakeRequest(name, set, lang) {
                         setName: card.set_name,
                         border: card.border_color,
                         images: images,
-                        back_images: backs
+                        backImages: backs,
+                        qualityImage: card.highres_image && !retry
                     };
 
                     // Cache result

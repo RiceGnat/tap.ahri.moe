@@ -280,6 +280,22 @@ class Card extends React.Component {
                         card: result
                     });
                     this.props.onCardLoaded();
+
+                    if (!result.qualityImage) {
+                        fetch(`${host}/api/img?name=${encodeURIComponent(card.name)}&set=${card.set}&lang=${card.language}`)
+                            .then(res => res.json())
+                            .then(newImg => {
+                                this.setState({
+                                    imgLoaded: false
+                                });
+
+                                setTimeout(() => {
+                                    result.images.unshift(newImg[0].url);
+                                    result.imageBorderCropped = true;
+                                    this.setState({});
+                                }, 500);
+                            });
+                    }
                 });
         }
     }
@@ -288,15 +304,22 @@ class Card extends React.Component {
         const card = this.props.card;
         const cardDetails = this.state.card;
 
+        var cardClasses = ["card", card.board.toLowerCase()];
+        if (cardDetails) cardClasses.push(cardDetails.types.join(" ").toLowerCase());
+
+        var imgClasses = [];
+        if (cardDetails && cardDetails.imageBorderCropped) imgClasses.push("border-crop");
+        if (!this.state.imgLoaded) imgClasses.push("hidden");
+
         return (
-            <div className={"card " + card.board.toLowerCase() + (cardDetails ? " " + cardDetails.types.join(" ").toLowerCase() : "")}>
+            <div className={cardClasses.join(" ")}>
                 <div class="frame">
                     <div class="card-title">{card.name}</div>
                     <div class="card-info">
-                        <div class="left">{card.set}&emsp;{card.language.toUpperCase()}&emsp;{card.signed ? "Signed" : ""}{card.foil ? " Foil" : ""}{card.alter ? " Alter" : ""}</div>
+                        <div class="left">{card.set && cardDetails ? cardDetails.set : card.set}&emsp;{card.language.toUpperCase()}&emsp;{card.signed ? "Signed" : ""}{card.foil ? " Foil" : ""}{card.alter ? " Alter" : ""}</div>
                         <div class="right"></div>
                     </div>
-                    {cardDetails ? <img className={!this.state.imgLoaded ? "hidden" : ""} onLoad={this.imageLoaded} src={cardDetails.images[0]} alt={cardDetails.printedName} /> : null}
+                    {cardDetails ? <img className={imgClasses.join(" ")} onLoad={this.imageLoaded} src={cardDetails.images[0]} alt={cardDetails.printedName} /> : null}
                     {cardDetails && card.foil ? <div class='foil layer'></div> : null}
                 </div>
             </div>
