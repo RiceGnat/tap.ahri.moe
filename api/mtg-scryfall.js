@@ -12,7 +12,7 @@ function GetCard(options) {
     return MakeRequest(name, set, lang);
 }
 
-function MakeRequest(name, set, lang, retry) {
+function MakeRequest(name, set, lang, isRetry) {
     const isPromo = set == "PROMO";
     const isMasterpiece = set.startsWith("MPS");
     const isSetDefined = set != "";
@@ -86,7 +86,7 @@ function MakeRequest(name, set, lang, retry) {
                         border: card.border_color,
                         images: images,
                         backImages: backs,
-                        qualityImage: card.highres_image && !retry
+                        qualityImage: card.highres_image && !isRetry
                     };
 
                     // Cache result

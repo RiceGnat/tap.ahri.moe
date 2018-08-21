@@ -5,13 +5,18 @@ const host = "https://magiccards.info";
 const queryRoot = "/query?v=scan&s=cname&q=";
 
 function GetImage(options) {
-    var name = options.name;
-    var set = options.set;
-    var lang = options.lang;
-
+    const name = options.name.trim();
+    const set = options.set ? options.set.trim().toUpperCase() : "";
+    var lang = options.lang && options.lang.trim() != "" ? options.lang.trim().toLowerCase() : "en";
     if (lang === "ja") lang = "jp";
-    
+
+    return MakeRequest(name, set, lang);
+}
+
+function MakeRequest(name, set, lang, isRetry) {
     const isPromo = set == "PROMO";
+    const isSetDefined = set != "";
+    const isLangDefined = lang != "en";
 
     var query = encodeURIComponent(`++o!"${name}"`);
     
@@ -34,6 +39,7 @@ function GetImage(options) {
             if (err) reject(err);
             else if (resp.statusCode != 200) reject(`Image request returned status code ${resp.statusCode}`);
             else {
+                console.log(`${host}${queryRoot}${query}`);
                 var results = [];
                 $("img[src*='/scans']", body).each((i, element) => {
                     results[i] = {
@@ -42,22 +48,24 @@ function GetImage(options) {
                     };
                 });
 
-                if (results.length == 0 && options.lang != "") {
-                    options.lang = "";
-                    GetImage(options).then(
+                if (results.length == 0 && isLangDefined) {
+                    MakeRequest(name, set, "en", true).then(
                         newResults => resolve(newResults),
                         error => reject(error)
                     );
                 }
-                else if (results.length == 0 && options.set != "") {
-                    options.set = "";
-                    GetImage(options).then(
+                else if (results.length == 0 && isSetDefined) {
+                    MakeRequest(name, "", lang, true).then(
                         newResults => resolve(newResults),
                         error => reject(error)
                     );
                 }
                 else {
-                    resolve(results);
+                    console.log(results);
+                    resolve({
+                        exactMatch: !isRetry,
+                        imgs: results
+                    });
                 }
             }
         });

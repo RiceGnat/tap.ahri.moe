@@ -1,6 +1,6 @@
 const express = require("express");
 
-const tappedout = require("./tappedout.js");
+const tappedout = require("./mtg-tappedout.js");
 const mtgimg = require("./mtg-imgs.js");
 const mtgora = require("./mtg-sdk.js");
 const scryfall = require("./mtg-scryfall.js");
@@ -32,9 +32,20 @@ module.exports = express.Router()
     }, error => errorHandler(error, res));
 })
 
-.get("/scryfall", (req, res) => {
+.get("/card", (req, res) => {
     scryfall.getCard(req.query).then(card => {
-        res.send(card);
+        if (!card.qualityImage) {
+            mtgimg.getImage(req.query).then(results => {
+                console.log(results);
+                card.images.unshift(results.imgs[0].url);
+                card.imageBorderCropped = true;
+                card.qualityImage = results.exactMatch;
+                res.send(card);
+            }, error => errorHandler(error, res));
+        }
+        else {
+            res.send(card);
+        }
     }, error => errorHandler(error, res));
 })
 
