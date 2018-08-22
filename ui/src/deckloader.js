@@ -11,7 +11,6 @@ export default class DeckLoader extends React.Component {
         }
 
         this.loadDeck = this.loadDeck.bind(this);
-        console.log(config.host);
         this.searchUpdated = this.searchUpdated.bind(this);
     }
 

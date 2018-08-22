@@ -60,6 +60,7 @@ export default class Card extends React.Component {
                     {details ? <img className={imgClasses.join(" ")} onLoad={this.imageLoaded} src={details.images[0]} alt={details.printedName} /> : null}
                     {details && card.foil ? <div className='foil layer'></div> : null}
                 </div>
+                {this.props.childCard}
             </div>
         )
     }
