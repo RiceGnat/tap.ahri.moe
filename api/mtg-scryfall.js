@@ -60,7 +60,7 @@ function MakeRequest(name, set, lang, isRetry) {
                     // Extract all image options if set specified; otherwise, get first only
                     for (var i = 0; i < (isSetDefined ? body.data.length : 1); i++) {
                         if (body.data[i].layout === "transform") {
-                            images.push(body.data[i].card_faces[0].image_uris.normal);
+                            images.push(body.data[i].card_faces[0].image_uris.normal);  // Front face only for now
                             backs.push(body.data[i].card_faces[1].image_uris.normal)
                         }
                         else {
@@ -69,7 +69,7 @@ function MakeRequest(name, set, lang, isRetry) {
                     }
 
                     // Extract relevant attributes into return object
-                    const type_line = card.type_line.toLowerCase().split("—");
+                    const type_line = (body.data[0].layout === "transform" ? body.data[0].card_faces[0].type_line : card.type_line).toLowerCase().split("—"); // Front face only for now
                     const types = type_line[0].trim().split(" ");
                     const subtypes = type_line[1] ? type_line[1].trim().split(" ") : [];
                     const result = {

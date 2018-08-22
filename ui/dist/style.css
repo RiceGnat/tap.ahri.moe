@@ -80,10 +80,6 @@ body.modern {
         padding: 20px 10px;
     }
 
-#deckTitle,
-#deckInfo {
-}
-
 #deckInfo {
     margin: 0 0 10px 0;
     padding: 5px;
@@ -95,7 +91,7 @@ body.modern {
         margin-bottom: 5px;
     }
 
-#sortedView:not(.commander) .card-area > .card,
-#sortedView.commander .card-area > .card.land {
+.sorted.view:not(.commander) .card-area > .card,
+.sorted.view.commander .card-area > .card.land {
     margin-bottom: 91px;
 }
