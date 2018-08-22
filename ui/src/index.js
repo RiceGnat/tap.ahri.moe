@@ -55,9 +55,15 @@ class App extends React.Component {
 
     render() {
         return (
-            <div className="container">
-                <DeckLoader onDeckLoaded={this.deckLoaded} />
-                <DeckView visible={this.state.deckVisible} deck={this.state.deck} />
+            <div>
+                <div id="controlBar" className="dark">
+                    <div className="container">
+                        <DeckLoader onDeckLoaded={this.deckLoaded} />
+                    </div>
+                </div>
+                <div className="container">
+                    <DeckView visible={this.state.deckVisible} deck={this.state.deck} />
+                </div>
             </div>
         )
     }

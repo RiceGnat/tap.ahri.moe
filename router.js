@@ -6,4 +6,9 @@ module.exports = express.Router()
 
 .use("/", express.static("ui/dist"))
 
-.use("/api", api);
+.use("/api", api)
+
+.get("/:slug", (req, res) => {
+    req.url = "/";
+    module.exports.handle(req, res);
+})

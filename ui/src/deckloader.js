@@ -10,7 +10,7 @@ export default class DeckLoader extends React.Component {
             searchString: ""
         }
 
-        this.loadDeck = this.loadDeck.bind(this);
+        this.formSubmitted = this.formSubmitted.bind(this);
         this.searchUpdated = this.searchUpdated.bind(this);
     }
 
@@ -21,9 +21,18 @@ export default class DeckLoader extends React.Component {
         });
     }
 
-    loadDeck(e) {
+    componentDidMount() {
+        if (window.location.pathname !== "/") {
+            var slug = window.location.pathname.replace(/\/$/, "").replace(/^\//, "");
+            this.setState({
+                searchString: slug
+            });
+            this.fetchDeck(slug);
+        }
+    }
+
+    fetchDeck(slug) {
         this.props.onDeckLoaded(null);
-        var slug = this.state.searchString.trim();
         this.setState({
             error: null,
             inProgress: true,
@@ -42,6 +51,13 @@ export default class DeckLoader extends React.Component {
                     inProgress: false,
                 });
             });
+    }
+
+    formSubmitted(e) {
+        var slug = this.state.searchString.trim();
+        if (slug !== "") {
+            this.fetchDeck(slug);
+        }
         e.preventDefault();
     }
 
@@ -49,8 +65,9 @@ export default class DeckLoader extends React.Component {
         const error = this.state.error ? <div className="error">{this.state.error}</div> : null;
         return (
             <div>
-                <form id="searchForm" onSubmit={this.loadDeck}>
-                    <input type="text" autoComplete="off" value={this.state.value} onChange={this.searchUpdated} /> <input type="submit" value="Load deck" disabled={this.state.inProgress} />
+                <form id="searchForm" onSubmit={this.formSubmitted}>
+                    <input id="deckSearch" type="text" autoComplete="off" value={this.state.searchString} onChange={this.searchUpdated} /> <input type="submit" value="Load deck" disabled={this.state.inProgress} />
+                    <span className="loading" style={!this.state.inProgress ? {display: "none"} : null}>Fetching deck...</span>
                 </form>
                 {error}
             </div>

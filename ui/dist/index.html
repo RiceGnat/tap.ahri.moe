@@ -4,9 +4,10 @@
 <head>
     <meta charset="utf-8" />
     <title></title>
-    <link rel="stylesheet" type="text/css" href="http://test-realm.ricegnat.com/styling/modern/modern.css" />
-    <link rel="stylesheet" type="text/css" href="style.css" />
-    <link rel="stylesheet" type="text/css" href="card.css" />
+    <link rel="stylesheet" type="text/css" href="http://ricegnat.com/resources/modern/modern.css" />
+    <link rel="stylesheet" type="text/css" href="http://ricegnat.com/resources/modern/modern.dark.css" />
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="stylesheet" type="text/css" href="/card.css" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script>
         var boards = ["main", "side", "maybe", "acquire"];
@@ -177,12 +178,6 @@
                 return false;
             })
 
-            if (window.location.pathname !== "/") {
-                var slug = window.location.pathname.replace(/\/$/, "").replace(/^\//, "");
-                $("#deckSearch").val(slug);
-                $("#searchForm").submit();
-            }
-
         });
     </script>
 </head>
@@ -193,16 +188,8 @@
                 <form id="pasteForm">
                     <textarea id="deckPaste" class="modern"></textarea> <input type="submit" id="loadPaste" value="Load deck paste" />
                 </form>
-                <ul id="sortModes" style="display:none">
-                    <li>
-                        <a href="javascript:void(0)">Default</a>
-                    </li>
-                    <li>
-                        <a href="javascript:void(0)">Type</a>
-                    </li>
-                </ul>
             </div>
         </div>
-    <script src="bundle.js"></script>
+    <script src="/bundle.js"></script>
 </body>
 </html>

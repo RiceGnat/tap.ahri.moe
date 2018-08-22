@@ -1,10 +1,7 @@
 body.modern {
     font-family: "Segoe UI";
     font-weight: 400;
-}
-
-.modern a {
-    color: #444444;
+    margin: 0;
 }
 
 .modern h3 {
@@ -29,13 +26,8 @@ body.modern {
     padding-right: 50px;
 }
 
-.deck-area,
-.view {
-    transition: opacity linear .5s;
-}
-
 .hidden {
-    opacity: 0;
+    opacity: 0 !important;
 }
 
 .section {
@@ -65,25 +57,46 @@ body.modern {
     padding: 25px 15px 25px 0;
 }
 
+#searchForm .loading {
+    margin-left: 20px;
+}
+
 #pasteForm input {
     vertical-align: top;
 }
 
-#sortModes {
-    display: flex;
-    margin: 0 25px;
+.deck-area .status {
+    padding: 0 5px;
+    margin-bottom: 15px;
     font-size: 150%;
     font-weight: 300;
 }
 
-    #sortModes li {
-        padding: 20px 10px;
+#sortModes {
+    display: flex;
+}
+
+    #sortModes ul {
+        display: flex;
     }
+
+    #sortModes li {
+        padding: 0 0 0 30px;
+    }
+
+h2#deckTitle {
+    margin: 0.5em 0;
+}
 
 #deckInfo {
     margin: 0 0 10px 0;
     padding: 5px;
 }
+
+    #deckTitle a,
+    #deckInfo a {
+        color: #444444;
+    }
 
     #deckInfo li {
         display: inline-block;
@@ -94,4 +107,28 @@ body.modern {
 .sorted.view:not(.commander) .card-area > .card,
 .sorted.view.commander .card-area > .card.land {
     margin-bottom: 91px;
+}
+
+.deck-area,
+.view,
+.status {
+    transition: opacity linear .5s;
+}
+
+@keyframes slowblink {
+    0% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+.loading {
+    animation: slowblink 1.5s linear infinite;
 }

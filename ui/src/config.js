@@ -1,5 +1,5 @@
 const config = {
-    host: "."
+    host: ""
 }
 
 module.exports = config;

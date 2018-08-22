@@ -33,9 +33,6 @@ export default class Card extends React.Component {
             });
             card.details = null;
         }
-        else {
-
-        }
     }
 
     render() {
