@@ -65,7 +65,7 @@
 
     .card > .frame.borderless {
         width: 210px;
-        min-height: 295px;
+        min-height: 293px;
         border: 0;
         background: none;
     }

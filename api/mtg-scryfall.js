@@ -69,7 +69,7 @@ function MakeRequest(name, set, lang, isRetry) {
                     }
 
                     // Extract relevant attributes into return object
-                    const type_line = card.type_line.split("—");
+                    const type_line = card.type_line.toLowerCase().split("—");
                     const types = type_line[0].trim().split(" ");
                     const subtypes = type_line[1] ? type_line[1].trim().split(" ") : [];
                     const result = {
@@ -83,7 +83,7 @@ function MakeRequest(name, set, lang, isRetry) {
                         oracleText: card.oracle_text,
                         set: card.set.toUpperCase(),
                         setName: card.set_name,
-                        border: card.border_color,
+                        border: card.set.toUpperCase() === "MP2" ? "borderless" : card.border_color,
                         images: images,
                         backImages: backs,
                         qualityImage: card.highres_image && !isRetry

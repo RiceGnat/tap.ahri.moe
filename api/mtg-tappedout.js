@@ -88,7 +88,7 @@ function GetDeckCards(slug) {
 
                     convertedList[i] = {
                         name: card.Name,
-                        board: card.Board,
+                        board: card.Board.toLowerCase(),
                         quantity: card.Qty,
                         set: card.Printing,
                         foil: card.Foil !== "",

@@ -34,18 +34,7 @@ module.exports = express.Router()
 
 .get("/card", (req, res) => {
     scryfall.getCard(req.query).then(card => {
-        if (!card.qualityImage) {
-            mtgimg.getImage(req.query).then(results => {
-                console.log(results);
-                card.images.unshift(results.imgs[0].url);
-                card.imageBorderCropped = true;
-                card.qualityImage = results.exactMatch;
-                res.send(card);
-            }, error => errorHandler(error, res));
-        }
-        else {
-            res.send(card);
-        }
+        res.send(card);
     }, error => errorHandler(error, res));
 })
 

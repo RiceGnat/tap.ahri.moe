@@ -128,18 +128,15 @@ class DeckView extends React.Component {
             loadedCards: 0,
             loaded: false,
             view: "default",
-            cardSorts: {}
+            cardsSorted: {}
         }
 
         this.cardLoaded = this.cardLoaded.bind(this);
     }
 
-    cardLoaded(card, details) {
-        //card.details = details;
-        // var cards = this.state.cards;
-        // cards.push(card);
+    cardLoaded() {
+        console.log("cardLoaded");
         this.setState((prevState) => ({
-            // cards: cards,
             loadedCards: prevState.loadedCards + 1
         }));
     }
@@ -154,7 +151,10 @@ class DeckView extends React.Component {
         if (prevProps.deck !== deck) {
             this.setState({
                 cards: null,
-                loadedCards: 0
+                loaded: false,
+                loadedCards: 0,
+                view: "default",
+                cardsSorted: {}
             });
         }
         // Deck is loaded
@@ -171,106 +171,114 @@ class DeckView extends React.Component {
                     cards: cards
                 });
             }
+            else if (!this.state.loaded && this.state.loadedCards === deck.list.length) {
+                console.log(deck);
+                this.setState({
+                    loaded: true,
+                    view: "type"
+                })
+            }
+            else if (this.state.loaded && !this.state.cardsSorted[this.state.view]) {
+                console.log("sorting cards");
+                this.sortCards();
+            }
         }
     }
 
     sortCards() {
         const deck = this.props.deck;
-        const boards = ["main", "side", "maybe", "acquire"];
         var sorted = {};
         sorted["main"] = {};
+        sorted.showBoards = false;
         switch (this.state.view) {
             case "type":
-                const types = ["sorcery", "instant", "enchantment", "artifact", "planeswalker", "creature", "land"];
-                var remaining = deck.list;
+                const types = ["creature", "sorcery", "instant", "artifact", "enchantment", "planeswalker", "land", "other"];
+                sorted["main"]["commander"] = [];
 
                 deck.list.forEach(card => {
                     if (!sorted[card.board]) {
                         sorted[card.board] = [];
                     }
 
-                    for (var i = 0; i < card.quantity; i++) {
-                        if (card.board === "main")
-                            sorted[card.board][card.details.types]
+                    if (card.board === "main") {
+                        if (deck.commander && deck.commander.includes(card.name)) {
+                            sorted["main"]["commander"].push(card);
+                            return;
+                        }
+
+                        types.some((type) => {
+                            if (card.details.types.includes(type) || type === "other") {
+                                if (!sorted[card.board][type])
+                                    sorted[card.board][type] = [];
+
+                                sorted[card.board][type].push(card);
+                                return true;
+                            }
+                            else return false;
+                        });
+                    }
+                    else {
+                        sorted[card.board].push(card);
+                        sorted.showBoards = true;
                     }
                 });
-                
-                boards.forEach(function (board) {
-                    var subset = remaining.filter(card => card.board === board);
-                    remaining = remaining.filter(card => card.board !== board);
-
-                    if (board === "main") {
-
-                    }
-
-                });
+                break;
         }
+        var cardsSorted = this.state.cardsSorted;
+        cardsSorted[this.state.view] = sorted;
+        console.log(cardsSorted);
+        this.setState({
+            cardsSorted: cardsSorted
+        });
     }
 
     renderCards() {
         switch (this.state.view) {
-            case "default": return (
+            case "default": if (this.state.cards) return (
                 <div id="defaultView" className="view card-area">
-                    {this.state.cards ? this.state.cards.map((card) =>
-                        <Card card={card} onCardLoaded={this.cardLoaded} />
-                    ) : null}
+                    {this.state.cards.map((card) => 
+                    <Card card={card} onCardLoaded={this.cardLoaded} />)}
                 </div>
-            );
-            case "type": return (
-                <div id="sortedView" className="view hidden">
+            ); else break;
+            case "type": if (this.state.cardsSorted["type"]) {
+                const types = ["commander", "creature", "sorcery", "instant", "artifact", "enchantment", "planeswalker", "land", "other"]
+                const typeLabels = ["Commander", "Creatures", "Sorceries", "Instants", "Artifacts", "Enchantments", "Planeswalkers", "Lands", "Other"]
+                const boards = ["side", "maybe", "acquire"];
+                const boardLabels = ["Side", "Maybe", "Acquire"];
+                return (
+                <div id="sortedView" className={"view" + (this.props.deck.commander ? " commander" : "")}>
                     <div className="main section">
+                        {this.state.cardsSorted["type"].showBoards ?
                         <h3>Main<span className="count"></span></h3>
-                        <div className="commander section">
-                            <h4>Commander<span className="count"></span></h4>
-                            <div className="card-area"></div>
+                        : null}
+                        {types.map((type, i) =>
+                        this.state.cardsSorted["type"]["main"][type] ? 
+                        <div className={type + " section"}>
+                            <h4>{typeLabels[i]}<span className="count"></span></h4>
+                            <div className="card-area">
+                                {this.state.cardsSorted["type"]["main"][type].map((card) => 
+                                <Card card={card} onCardLoaded={this.cardLoaded} />)}
+                            </div>
                         </div>
-                        <div className="creature section">
-                            <h4>Creatures<span className="count"></span></h4>
-                            <div className="card-area"></div>
-                        </div>
-                        <div className="sorcery section">
-                            <h4>Sorceries<span className="count"></span></h4>
-                            <div className="card-area"></div>
-                        </div>
-                        <div className="instant section">
-                            <h4>Instants<span className="count"></span></h4>
-                            <div className="card-area"></div>
-                        </div>
-                        <div className="artifact section">
-                            <h4>Artifacts<span className="count"></span></h4>
-                            <div className="card-area"></div>
-                        </div>
-                        <div className="enchantment section">
-                            <h4>Enchantments<span className="count"></span></h4>
-                            <div className="card-area"></div>
-                        </div>
-                        <div className="planeswalker section">
-                            <h4>Planeswalkers<span className="count"></span></h4>
-                            <div className="card-area"></div>
-                        </div>
-                        <div className="land section">
-                            <h4>Lands<span className="count"></span></h4>
-                            <div className="card-area"></div>
-                        </div>
-                        <div className="other section">
-                            <h4>Other<span className="count"></span></h4>
-                            <div className="card-area"></div>
+                        : null
+                        )}
+                    </div>
+                    {this.state.cardsSorted["type"].showBoards ?
+                    boards.map((board, i) =>
+                    this.state.cardsSorted["type"][board] ?
+                    <div className={board + " section"}>
+                        <h3>{boardLabels[i]}<span className="count"></span></h3>
+                        <div className="card-area">
+                            {this.state.cardsSorted["type"][board].map((card) => 
+                            <Card card={card} onCardLoaded={this.cardLoaded} />)}
                         </div>
                     </div>
-                    <div className="side section">
-                        <h3>Sideboard<span className="count"></span></h3>
-                        <div className="card-area"></div>
-                    </div>
-                    <div className="maybe section">
-                        <h3>Maybe<span className="count"></span></h3>
-                        <div className="card-area"></div>
-                    </div>
-                    <div className="acquire section">
-                        <h3>Acquire<span className="count"></span></h3>
-                        <div className="card-area"></div>
-                    </div>
+                    : null
+                    )
+                    : null}
                 </div>
-            );
+                );
+            } else break;
         }
     }
 
@@ -289,7 +297,7 @@ class DeckView extends React.Component {
                     </ul>
                 </div>
                 : null}
-                {this.renderCards()}
+                {deck ? this.renderCards() : null}
             </div>
         )
     }
@@ -315,15 +323,15 @@ class Card extends React.Component {
     componentDidMount() {
         const card = this.props.card;
 
+        // Small bit of cheating by changing prop so we don't fetch for copies
         if (!card.hasOwnProperty("details")) {
-            console.log("fetch");
             fetch(`${host}/api/card?name=${encodeURIComponent(card.name)}&set=${card.set}&lang=${card.language}`)
             .then(res => res.json())
             .then(result => {
-                // Add details to card
                 card.details = result;
 
-                this.props.onCardLoaded(result);
+                // Should probably update prop with handler, but is extra pointless code
+                this.props.onCardLoaded();
             });
             card.details = null;
         }
@@ -332,15 +340,12 @@ class Card extends React.Component {
         }
     }
 
-    componentDidUpdate() {
-    }
-
     render() {
         const card = this.props.card;
         const details = this.props.card.details;
 
-        var cardClasses = ["card", card.board.toLowerCase()];
-        if (details) cardClasses.push(details.types.join(" ").toLowerCase());
+        var cardClasses = ["card", card.board];
+        if (details) cardClasses.push(details.types.join(" "));
 
         var imgClasses = [];
         if (details && details.imageBorderCropped) imgClasses.push("border-crop");
@@ -348,7 +353,7 @@ class Card extends React.Component {
 
         return (
             <div className={cardClasses.join(" ")}>
-                <div class="frame">
+                <div class={"frame" + (details && (details.border === "borderless" || details.border === "silver") ? " borderless" : "")}>
                     <div class="card-title">{card.name}</div>
                     <div class="card-info">
                         <div class="left">{card.set && details ? details.set : card.set}&emsp;{card.language.toUpperCase()}&emsp;{card.signed ? "Signed" : ""}{card.foil ? " Foil" : ""}{card.alter ? " Alter" : ""}</div>
