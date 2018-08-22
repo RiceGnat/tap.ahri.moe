@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "main": "server.js",
   "scripts": {
-    "pack": "webpack --config ./webpack.config.js --mode=production",
+    "build": "webpack --config ./webpack.config.js --mode=production",
+    "devbuild": "webpack --config ./webpack.config.js --mode=development",
     "start": "node server.js"
   },
   "repository": {
