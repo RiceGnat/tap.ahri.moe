@@ -28,44 +28,28 @@ module.exports = express.Router()
 
     // Begin by searching Scryfall
     scryfall.search(name, set, lang).then(card => {
-        if (!card.qualityImage) {
-            // No high-res image found
-
-            // Try finding legacy magiccards.info scans on Scryfall
-            Promise.all(card.images.map(img =>
-                new Promise((resolve, reject) => {
-                    mtgsdk.getMCISetCode(card.set).then(set => {
-                        scryfall.getMCIImage(lang, set.magicCardsInfoCode, img.collectorNumber).then(newImg => {
-                            if (newImg.url) {
-                                newImg.multiverseId = img.multiverseId;
-                            }
-                            resolve(newImg);
-                        }, error => reject(error));
-                    }, error => reject(error));
-                })
-            )).then(newImgs => {
-                // See if any hits
-                var imgs = newImgs.filter(img => img.url);
-                if (imgs.length > 0) {
-                    // Found some!
-                    card.qualityImage = true;
-                    imgs.push.apply(imgs, card.images);
-                    card.images = imgs;
-                    res.send(card);
-                }
-                else {
-                    // Still no luck
-
-                    res.send(card);
-                }
-            }, error => {
-                // Something went wrong with magiccards.info lookup
-                res.send(card);
-            });
-            
-        }
         // All good, send it off
-        else res.send(card);
+        if (card.qualityImage) return card;
+        // No high-res images
+        else return Promise.all(card.images.map(img =>
+            // For each image variation:
+            // Try finding legacy magiccards.info scan on Scryfall
+            mtgsdk.getMCISetCode(card.set).then(set => 
+                scryfall.getMCIImage(lang, set.magicCardsInfoCode, img.collectorNumber)
+            ).catch(error => 
+                // magiccards.info didn't work, try Deckmaster
+                deckmaster.getImage(img.multiverseId, card.set)
+            ).then(newImg =>
+                // Fill in missing properties for new image
+                newImg.url ? Object.assign({}, img, newImg) : newImg
+            // Catch any errors
+            , error => ({error: error}))
+        )).then(newImgs => {
+            // Update card with any new images
+            checkImagesAndMerge(newImgs, card);
+            return card;
+        // Catch any errors and return unmodified card
+        }, error => card);
     }, error => {
         // Card wasn't found (or something went wrong)
 
@@ -88,7 +72,7 @@ module.exports = express.Router()
             // Try with only name
             errorHandler(error, res)
         }
-    });
+    }).then(card => res.send(card));
 /*
     if (lang !== "en" && set !== "PROMO") {
         scryfall.getCard(name, set).then(card => {
@@ -116,7 +100,18 @@ module.exports = express.Router()
             else res.send(card);
         }, error => errorHandler(error, res));
     }*/
-})
+});
+
+function checkImagesAndMerge(imgs, card) {
+    var valid = imgs.filter(img => img.url);
+    if (valid.length > 0) {
+        card.qualityImage = true;
+        valid.push.apply(valid, card.images);
+        card.images = valid;
+        return true;
+    }
+    return false;
+}
 
 function errorHandler(error, res) {
     res.status(500).send(error);

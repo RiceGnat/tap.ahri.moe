@@ -125,15 +125,15 @@ function GetMCIImage(lang, set, number) {
             method: "HEAD",
             url: url
         }, (err, resp, body) => {
-            if (err) return reject(err);
+            if (err || resp.statusCode !== 200) return reject(err || resp.statusCode);
 
-            resolve(resp.statusCode === 200 ? {
+            resolve({
                 url: url,
                 collectorNumber: number,
                 set: set,
                 highres: true,
                 borderCrop: true
-            } : {});
+            });
         });
     });
 }

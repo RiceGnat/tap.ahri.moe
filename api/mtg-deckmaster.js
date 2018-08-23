@@ -13,9 +13,14 @@ function GetImage(multiverseId, set) {
             method: "HEAD",
             url: url
         }, (err, resp, body) => {
-            if (err) return reject(err);
+            if (err || resp.statusCode !== 200) return reject(err || resp.statusCode);
 
-            const result = resp.statusCode === 200 ? { url: url } : {};
+            const result = {
+                url: url,
+                set: set,
+                highres: true,
+                multiverseId: multiverseId
+            };
             cache[multiverseId, set] = result;
             resolve(result);
         });
