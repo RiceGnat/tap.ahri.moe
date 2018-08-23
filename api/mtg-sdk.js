@@ -1,4 +1,5 @@
 const mtgsdk = require("mtgsdk");
+const request = require("request");
 
 function GetCard(options) {
     const name = options.name;
@@ -66,6 +67,25 @@ function GetCard(options) {
     });
 }
 
+function GetMCISetCode(set) {
+    const query = `https://api.magicthegathering.io/v1/sets/${set}`;
+    return new Promise((resolve, reject) => {
+        request.get({
+            url: query,
+            json: true
+        }, (err, resp, body) => {
+            if (err) reject(err);
+            else if (resp.statusCode !== 200) reject(`MTG SDK request returned status code ${resp.statusCode}`);
+            else {
+                resolve({
+                    magicCardsInfoCode: body.set.magicCardsInfoCode
+                });
+            }
+        });
+    });
+}
+
 module.exports = {
-    getCard: GetCard
+    getCard: GetCard,
+    getMCISetCode: GetMCISetCode
 }

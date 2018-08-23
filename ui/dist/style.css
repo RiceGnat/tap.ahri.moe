@@ -117,7 +117,7 @@ h2#deckTitle {
 
 @keyframes slowblink {
     0% {
-        opacity: 0;
+        opacity: 0.2;
     }
 
     50% {
@@ -125,7 +125,7 @@ h2#deckTitle {
     }
 
     100% {
-        opacity: 0;
+        opacity: 0.2;
     }
 }
 

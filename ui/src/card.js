@@ -43,7 +43,7 @@ export default class Card extends React.Component {
         if (details) cardClasses.push(details.types.join(" "));
 
         var imgClasses = [];
-        if (details && details.imageBorderCropped) imgClasses.push("border-crop");
+        if (details && details.images[0].borderCrop) imgClasses.push("border-crop");
         if (!this.state.imgLoaded) imgClasses.push("hidden");
 
         return (
@@ -54,7 +54,7 @@ export default class Card extends React.Component {
                         <div className="left">{card.set && details ? details.set : card.set}&emsp;{card.language.toUpperCase()}&emsp;{card.signed ? "Signed" : ""}{card.foil ? " Foil" : ""}{card.alter ? " Alter" : ""}</div>
                         <div className="right"></div>
                     </div>
-                    {details ? <img className={imgClasses.join(" ")} onLoad={this.imageLoaded} src={details.images[0]} alt={details.printedName} /> : null}
+                    {details ? <img className={imgClasses.join(" ")} onLoad={this.imageLoaded} src={details.images[0].url} alt={details.printedName} /> : null}
                     {details && card.foil ? <div className='foil layer'></div> : null}
                 </div>
                 {this.props.childCard}

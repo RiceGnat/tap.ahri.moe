@@ -247,7 +247,7 @@ export default class DeckView extends React.Component {
                 });
             }
             return (
-                <div className={"sorted view" + (this.props.deck.commander ? " commander" : "") + (!visible ? " hidden" : "")}>
+                <div className={"view" + (this.props.deck.commander ? " commander" : "") + (!visible ? " hidden" : "") + (view !== "default" ? " sorted" : "")}>
                     {sections}
                 </div>
             );

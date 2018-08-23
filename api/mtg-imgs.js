@@ -1,3 +1,5 @@
+// DEPRECATED: magiccards.info merged into scryfall
+
 const request = require("request");
 const $ = require("cheerio");
 
@@ -39,7 +41,6 @@ function MakeRequest(name, set, lang, isRetry) {
             if (err) reject(err);
             else if (resp.statusCode != 200) reject(`Image request returned status code ${resp.statusCode}`);
             else {
-                console.log(`${host}${queryRoot}${query}`);
                 var results = [];
                 $("img[src*='/scans']", body).each((i, element) => {
                     results[i] = {
@@ -61,7 +62,6 @@ function MakeRequest(name, set, lang, isRetry) {
                     );
                 }
                 else {
-                    console.log(results);
                     resolve({
                         exactMatch: !isRetry,
                         imgs: results
