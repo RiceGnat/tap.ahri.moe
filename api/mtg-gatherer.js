@@ -50,7 +50,7 @@ function ExtractMultiverseIDs($rows) {
     var languages = {};
     $rows.each((i, row) => {
         const language = $("td:nth-child(2)", row).text().trim();
-        const mvid = $("td:first-child a", row).attr("href").match(/multiverseid=(\d+)/)[1];
+        const mvid = parseInt($("td:first-child a", row).attr("href").match(/multiverseid=(\d+)/)[1]);
         var code;
 
         if (language === "Chinese Simplified") code = "zhs";

@@ -118,24 +118,49 @@ function ExtractCardProps(body) {
     };
 }
 
+var mciCache = {};
 function GetMCIImage(lang, set, number) {
     const url = `https://img.scryfall.com/mci/scans/${lang.toLowerCase() === "ja" ? "jp" : lang}/${set}/${number}.jpg`;
     return new Promise((resolve, reject) => {
+        if (mciCache[lang, set, number]) return resolve(mciCache[lang, set, number]);
         request({ 
             method: "HEAD",
             url: url
         }, (err, resp, body) => {
-            if (err || resp.statusCode !== 200) return reject(err || resp.statusCode);
-
-            resolve({
-                url: url,
-                collectorNumber: number,
-                set: set,
-                highres: true,
-                borderCrop: true
-            });
+            if (err) return reject(err);
+            
+            if (resp.statusCode !== 200) {
+                if (isNaN(number)) {
+                    return reject(resp.statusCode);
+                }
+                else GetMCIVariations(lang, set, number, "a")
+                    .then(results => {
+                        mciCache[lang, set, number] = results;
+                        resolve(results);
+                    }, error => reject(error)
+                )
+            }
+            else {
+                const result = {
+                    url: url,
+                    collectorNumber: number,
+                    set: set,
+                    highres: true,
+                    borderCrop: true
+                };
+                mciCache[lang, set, number] = result;
+                resolve(result);
+            }
         });
     });
+}
+
+function GetMCIVariations(lang, set, number, index) {
+    return GetMCIImage(lang, set, number + index).then(result => 
+        GetMCIVariations(lang, set, number, String.fromCharCode(index.charCodeAt() + 1))
+        .then(nextResult => [result].concat(nextResult),
+        error => [result])
+    );
 }
 
 function GetMultiverseID(name, set) {
