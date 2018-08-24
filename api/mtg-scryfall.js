@@ -77,6 +77,7 @@ function ExtractCardProps(body) {
             url: url,
             collectorNumber: cards[i].collector_number,
             set: cards[i].set,
+            language: card.lang,
             highres: cards[i].highres_image,
             multiverseId: cards[i].multiverse_ids[0]
         });
@@ -110,6 +111,7 @@ function ExtractCardProps(body) {
         set: card.set.toUpperCase(),
         setName: card.set_name,
         border: card.set.toUpperCase() === "MP2" ? "borderless" : card.border_color,
+        language: card.lang,
         images: images,
         //backImages: backs,
         //collectorNumber: card.collector_number,
@@ -145,6 +147,7 @@ function GetMCIImage(lang, set, number) {
                     url: url,
                     collectorNumber: number,
                     set: set,
+                    language: lang,
                     highres: true,
                     borderCrop: true
                 };
