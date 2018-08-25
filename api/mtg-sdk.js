@@ -74,8 +74,7 @@ function GetMCISetCode(set) {
             url: query,
             json: true
         }, (err, resp, body) => {
-            if (err) reject(err);
-            else if (resp.statusCode !== 200) reject(`MTG SDK request returned status code ${resp.statusCode}`);
+            if (err || resp.statusCode !== 200) reject(`MTG SDK request failed with ${err ? err : resp.statusCode}`);
             else {
                 resolve({
                     magicCardsInfoCode: body.set.magicCardsInfoCode
@@ -85,7 +84,28 @@ function GetMCISetCode(set) {
     });
 }
 
+function GetPromoCard(name) {
+    const query = `https://api.magicthegathering.io/v1/cards?name="${name}"`;
+    return new Promise((resolve, reject) => {
+        request.get({
+            url: query,
+            json: true
+        }, (err, resp, body) => {
+            if (err || resp.statusCode !== 200) reject(`MTG SDK request failed with ${err ? err : resp.statusCode}`);
+            else {
+                resolve(body.cards
+                .filter(card => card.set.startsWith("p"))
+                .map(card => ({
+                    promoSetCode: card.set,
+                    collectorNumber: card.number
+                })));
+            }
+        });
+    });
+}
+
 module.exports = {
     getCard: GetCard,
-    getMCISetCode: GetMCISetCode
+    getMCISetCode: GetMCISetCode,
+    getPromoCard: GetPromoCard
 }

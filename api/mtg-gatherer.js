@@ -52,7 +52,6 @@ function ExtractMultiverseIDs($rows) {
         const language = $("td:nth-child(2)", row).text().trim();
         const mvid = parseInt($("td:first-child a", row).attr("href").match(/multiverseid=(\d+)/)[1]);
         var code;
-        console.log(language, mvid);
 
         if (language === "Chinese Simplified") code = "zhs";
         else if (language === "Chinese Traditional") code = "zht";

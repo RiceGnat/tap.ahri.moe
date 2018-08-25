@@ -83,7 +83,7 @@ function ExtractCardProps(body) {
         });
         //backs.push(cards[i].card_faces[1].image_uris.normal)
     }
-
+/*
     images = images.sort((a, b) => {
         if (a.highres === b.highres) {
             var diff = parseInt(a.collectorNumber) - parseInt(b.collectorNumber);
@@ -93,7 +93,7 @@ function ExtractCardProps(body) {
             return diff;
         }
         else return b.highres - a.highres;
-    });
+    });*/
 
     // Extract relevant attributes into return object
     const type_line = (card.layout === "transform" ? card.card_faces[0].type_line : card.type_line).toLowerCase().split("—");
@@ -124,7 +124,7 @@ var mciCache = {};
 function GetMCIImage(lang, set, number) {
     const url = `https://img.scryfall.com/mci/scans/${lang.toLowerCase() === "ja" ? "jp" : lang}/${set}/${number}.jpg`;
     return new Promise((resolve, reject) => {
-        if (mciCache[lang, set, number]) return resolve(mciCache[lang, set, number]);
+        if (mciCache[[lang, set, number]]) return resolve(mciCache[[lang, set, number]]);
         request({ 
             method: "HEAD",
             url: url
@@ -137,7 +137,7 @@ function GetMCIImage(lang, set, number) {
                 }
                 else GetMCIVariations(lang, set, number, "a")
                     .then(results => {
-                        mciCache[lang, set, number] = results;
+                        mciCache[[lang, set, number]] = results;
                         resolve(results);
                     }, error => reject(error)
                 )
@@ -146,12 +146,11 @@ function GetMCIImage(lang, set, number) {
                 const result = {
                     url: url,
                     collectorNumber: number,
-                    set: set,
                     language: lang,
                     highres: true,
                     borderCrop: true
                 };
-                mciCache[lang, set, number] = result;
+                mciCache[[lang, set, number]] = result;
                 resolve(result);
             }
         });

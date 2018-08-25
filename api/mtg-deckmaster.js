@@ -7,7 +7,7 @@ var cache = {};
 function GetImage(multiverseId, set) {
     const url = `${host}/images/cards/${set}/${multiverseId}-hr.jpg`;
     return new Promise((resolve, reject) => {
-        if (cache[multiverseId, set]) return resolve(cache[multiverseId, set]);
+        if (cache[[multiverseId, set]]) return resolve(cache[multiverseId, set]);
 
         request({ 
             method: "HEAD",
@@ -21,7 +21,7 @@ function GetImage(multiverseId, set) {
                 highres: true,
                 multiverseId: multiverseId
             };
-            cache[multiverseId, set] = result;
+            cache[[multiverseId, set]] = result;
             resolve(result);
         });
     });
