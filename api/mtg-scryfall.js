@@ -83,17 +83,6 @@ function ExtractCardProps(body) {
         });
         //backs.push(cards[i].card_faces[1].image_uris.normal)
     }
-/*
-    images = images.sort((a, b) => {
-        if (a.highres === b.highres) {
-            var diff = parseInt(a.collectorNumber) - parseInt(b.collectorNumber);
-            if (diff === 0) {
-                diff = a.collectorNumber < b.collectorNumber ? -1 : 1;
-            }
-            return diff;
-        }
-        else return b.highres - a.highres;
-    });*/
 
     // Extract relevant attributes into return object
     const type_line = (card.layout === "transform" ? card.card_faces[0].type_line : card.type_line).toLowerCase().split("—");
@@ -120,39 +109,39 @@ function ExtractCardProps(body) {
     };
 }
 
-var mciCache = {};
-function GetMCIImage(lang, set, number) {
-    const url = `https://img.scryfall.com/mci/scans/${lang.toLowerCase() === "ja" ? "jp" : lang}/${set}/${number}.jpg`;
+function GetMCIImage(lang, set, number, noAdjust) {
+    const matches = number.match(/(\d+)([a-z]*)/);
+    const suffix = matches[2];
+            
+    // If suffix specified, increment it since MCI is offset by one letter
+    if (suffix !== "" && !noAdjust)
+        suffix = String.fromCharCode(suffix.charCodeAt() + 1);
+
+    const url = `https://img.scryfall.com/mci/scans/${lang.toLowerCase() === "ja" ? "jp" : lang}/${set}/${matches[1]}${suffix}.jpg`;
     return new Promise((resolve, reject) => {
-        if (mciCache[[lang, set, number]]) return resolve(mciCache[[lang, set, number]]);
         request({ 
             method: "HEAD",
             url: url
         }, (err, resp, body) => {
-            if (err) return reject(err);
-            
-            if (resp.statusCode !== 200) {
-                if (isNaN(number)) {
-                    return reject(resp.statusCode);
-                }
-                else GetMCIVariations(lang, set, number, "a")
-                    .then(results => {
-                        mciCache[[lang, set, number]] = results;
-                        resolve(results);
-                    }, error => reject(error)
-                )
+            if (err || (resp.statusCode !== 200 && suffix !== "")) return reject(`Scryfall MCI request failed with : ${err}`);
+
+            // If lookup failed and no collector number suffix specified
+            if (resp.statusCode !== 200 && suffix == "") {
+                // Try looking for suffix "a" (ie ZEN and BFZ lands are ###a and ###b for full art and regular)
+                GetMCIImage(lang, set, number + "a", true)
+                .then(result => resolve(result),
+                error => reject(error));
+                return;
             }
-            else {
-                const result = {
-                    url: url,
-                    collectorNumber: number,
-                    language: lang,
-                    highres: true,
-                    borderCrop: true
-                };
-                mciCache[[lang, set, number]] = result;
-                resolve(result);
-            }
+
+            const result = {
+                url: url,
+                collectorNumber: number,
+                language: lang,
+                highres: true,
+                borderCrop: true
+            };
+            resolve(result);
         });
     });
 }

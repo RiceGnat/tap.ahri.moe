@@ -25,7 +25,6 @@ module.exports = express.Router()
     const name = req.query.name.trim();
     const set = req.query.set ? req.query.set.trim().toUpperCase() : "";
     const lang = req.query.lang && req.query.lang.trim() != "" ? req.query.lang.trim().toLowerCase() : "en";
-    const useGatherer = true; // Placeholder for future query option
 
     // Begin by searching Scryfall
     scryfall.search(name, set, lang)
@@ -114,6 +113,33 @@ module.exports = express.Router()
     },
     // Still couldn't find card, just return the default version of the card
     error => scryfall.getCard(name))
+    // Sort card images
+    .then(card => {
+        card.images.sort((a, b) => {
+            // Prioritize matching language
+            if (a.language !== b.language) {
+                if (a.language === lang) return -1;
+                else if (b.language === lang) return 1;
+                else return a.language < b.language ? -1 : 1;
+            }
+            else {
+                // Then prioritize highres images
+                if (a.highres !== b.highres) {
+                    return b.highres - a.highres;
+                }
+                else {
+                    // Sort by collector number
+                    var diff = parseInt(a.collectorNumber) - parseInt(b.collectorNumber);
+                    if (diff === 0) {
+                        // Lexographically sort collector number variations (eg 250a)
+                        diff = a.collectorNumber < b.collectorNumber ? -1 : 1;
+                    }
+                    return diff;
+                }
+            }
+        });
+        return card;
+    })
     // Send the card off
     .then(card => res.send(card),
     // At this point something went wrong, so give up and return an error response
