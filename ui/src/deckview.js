@@ -140,12 +140,14 @@ export default class DeckView extends React.Component {
         });
     }
 
-    stackCards(cards, i, key) {
-        if (i === cards.length - 1) {
+    stackCards(cards, i, key, depth) {
+        if (!depth) depth = 1;
+
+        if (i === cards.length - 1 || depth == 4) {
             return <Card key={key} card={cards[i]} onCardLoaded={this.cardLoaded} />
         }
         else {
-            return <Card key={key} card={cards[i]} childCard={this.stackCards(cards, i + 1, key + 1)} onCardLoaded={this.cardLoaded} />
+            return <Card key={key} card={cards[i]} childCard={this.stackCards(cards, i + 1, key + 1, depth + 1)} onCardLoaded={this.cardLoaded} />
         }
     }
 
@@ -161,7 +163,8 @@ export default class DeckView extends React.Component {
             while (remaining.length > 0) {
                 var id = remaining[0].details.id;
                 var matching = remaining.filter((card) => card.details.id === id);
-                cards.push(this.stackCards(matching, 0, n));
+                for (var i = 0; i < matching.length; i += 4)
+                    cards.push(this.stackCards(matching, i, n));
                 n += matching.length;
                 remaining = remaining.filter((card) => card.details.id !== id);
             }
