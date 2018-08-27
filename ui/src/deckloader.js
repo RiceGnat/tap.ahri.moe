@@ -67,9 +67,9 @@ export default class DeckLoader extends React.Component {
             <div>
                 <form id="searchForm" onSubmit={this.formSubmitted}>
                     <input id="deckSearch" type="text" autoComplete="off" value={this.state.searchString} onChange={this.searchUpdated} /> <input type="submit" value="Load deck" disabled={this.state.inProgress} />
+                    <div className="loading tip" style={!this.state.inProgress ? {display: "none"} : null}>Fetching deck...</div>
+                    {error}
                 </form>
-                <div className="loading" style={!this.state.inProgress ? {display: "none"} : null}>Fetching deck...</div>
-                {error}
             </div>
         )
     }

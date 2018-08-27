@@ -23,6 +23,7 @@ export default class Card extends React.Component {
 
         // Small bit of cheating by changing prop so we don't fetch for copies
         if (!card.hasOwnProperty("details")) {
+            console.log("fetch");
             fetch(`${config.host}/api/card?name=${encodeURIComponent(card.name)}&set=${card.set}&lang=${card.language}`)
             .then(res => res.json())
             .then(result => {

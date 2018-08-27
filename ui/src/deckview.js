@@ -61,19 +61,15 @@ export default class DeckView extends React.Component {
                 this.setState({
                     cards: cards
                 });
-                console.log("cards initialized");
             }
             else {
                 // If the current view has not been sorted yet
                 if (!this.state.cardsSorted.boardsSorted || !this.state.cardsSorted["main"][this.state.view]) {
-                    console.log(`sorting cards for ${this.state.view} view`);
                     this.sortCards();
                 }
 
                 // All cards have been loaded
                 if (!this.state.loaded && this.state.loadedCards === deck.list.length) {
-                    console.log("cards loaded");
-                    console.log(deck);
                     this.setState({
                         loaded: true,
                         cardsVisible: false
