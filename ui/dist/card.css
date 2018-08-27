@@ -123,13 +123,17 @@
     padding: 4px;
     overflow: hidden;
     z-index: 1;
-    opacity: 0;
-    transform: scaleY(0);
     color: white;
     background: rgba(0, 0, 0, .8);
     transition-property: transform, opacity;
     transition-timing-function: linear;
     transition-duration: .1s;
+}
+
+.loaded > .card-title,
+.loaded > .card-info {
+    opacity: 0;
+    transform: scaleY(0);
 }
 
 .card:not(.held) > .frame:hover > .card-title,

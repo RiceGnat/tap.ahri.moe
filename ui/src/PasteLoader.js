@@ -64,7 +64,7 @@ export default class PasteLoader extends React.Component {
         return (
             <div>
                 <form id="pasteForm" onSubmit={this.formSubmitted}>
-                    <textarea id="deckPaste" class="modern" autoComplete="off" rows="2" value={this.state.searchString} onChange={this.searchUpdated}></textarea> <input type="submit" id="loadPaste" value="Load deck paste" />
+                    <textarea id="deckPaste" autoComplete="off" rows="2" value={this.state.searchString} onChange={this.searchUpdated}></textarea> <input type="submit" id="loadPaste" value="Load deck paste" />
                 </form>
                 {error}
             </div>

@@ -113,7 +113,7 @@ export default class DeckView extends React.Component {
                         break;
                     case "types":
                         types.some((type) => {
-                            if (card.details.types.includes(type) || type === "other") {
+                            if (type === "other" || (card.details && card.details.types.includes(type))) {
                                 if (!sorted[card.board][view][type])
                                     sorted[card.board][view][type] = [];
     
@@ -144,10 +144,10 @@ export default class DeckView extends React.Component {
         if (!depth) depth = 1;
 
         if (i === cards.length - 1 || depth == 4) {
-            return <Card key={key} card={cards[i]} onCardLoaded={this.cardLoaded} />
+            return <Card key={key + i} card={cards[i]} onCardLoaded={this.cardLoaded} />
         }
         else {
-            return <Card key={key} card={cards[i]} childCard={this.stackCards(cards, i + 1, key + 1, depth + 1)} onCardLoaded={this.cardLoaded} />
+            return <Card key={key + i} card={cards[i]} childCard={this.stackCards(cards, i + 1, key, depth + 1)} onCardLoaded={this.cardLoaded} />
         }
     }
 
@@ -161,12 +161,20 @@ export default class DeckView extends React.Component {
             var cards = [];
             var n = 0;
             while (remaining.length > 0) {
-                var id = remaining[0].details.id;
-                var matching = remaining.filter((card) => card.details.id === id);
+                const currentCard = remaining[0];
+                var matching;
+                if (!currentCard.details) {
+                    matching = remaining.filter(card => card.name === currentCard.name);
+                    remaining = remaining.filter(card => card.name !== currentCard.name);
+                }
+                else {
+                    var id = currentCard.details.id;
+                    matching = remaining.filter(card => card.details.id === id);
+                    remaining = remaining.filter(card => card.details.id !== id);
+                }
                 for (var i = 0; i < matching.length; i += 4)
                     cards.push(this.stackCards(matching, i, n));
                 n += matching.length;
-                remaining = remaining.filter((card) => card.details.id !== id);
             }
             return cards;
         }
@@ -215,7 +223,7 @@ export default class DeckView extends React.Component {
                     main = types.map((type, i) => {
                         if (cardsSorted["main"][view][type]) return ( 
                             <div key={type} className={type + " section"}>
-                                <h4>{typeLabels[i]}<span className="count">{cards.filter((card) => card.board === "main" && card.details.types.includes(type)).length}</span></h4>
+                                <h4>{typeLabels[i]}<span className="count">{cards.filter((card) => card.board === "main" && (type === "other" ? !card.details : (card.details && card.details.types.includes(type)))).length}</span></h4>
                                 <div className="card-area">
                                     {this.mapCards(cardsSorted["main"][view][type], true)}
                                 </div>
@@ -254,7 +262,6 @@ export default class DeckView extends React.Component {
     }
 
     render() {
-        console.log("render");
         const deck = this.props.deck;
         return (
             <div className={"deck-area" + (!this.props.visible ? " hidden" : "")}>

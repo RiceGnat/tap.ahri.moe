@@ -23,16 +23,21 @@ export default class Card extends React.Component {
 
         // Small bit of cheating by changing prop so we don't fetch for copies
         if (!card.hasOwnProperty("details")) {
-            console.log("fetch");
             fetch(`${config.host}/api/card?name=${encodeURIComponent(card.name)}&set=${card.set}&lang=${card.language}`)
+            .then(res => {
+                if (!res.ok) throw Error(res.body);
+                return res;
+            })
             .then(res => res.json())
             .then(result => {
                 // Should probably update prop with a handler instead, but it's extra roundabout code
                 card.details = result;
-
                 // TODO: defer image search to allow sorting earlier
-                this.props.onCardLoaded();
-            });
+            },
+            error => {
+                card.error = error;
+            })
+            .then(() => this.props.onCardLoaded());
             card.details = null;
         }
     }
@@ -50,8 +55,8 @@ export default class Card extends React.Component {
 
         return (
             <div className={cardClasses.join(" ")}>
-                <div className={"frame" + (details && (details.border === "borderless" || details.border === "silver") ? " borderless" : "")}>
-                    <div className="card-title">{card.name}</div>
+                <div className={"frame" + (this.state.imgLoaded ? " loaded" : "") + (details && (details.border === "borderless" || details.border === "silver") ? " borderless" : "")}>
+                    <div className="card-title">{details ? card.details.name : card.name}</div>
                     <div className="card-info">
                         <div className="left">{card.set && details ? details.set : card.set}&emsp;{card.language.toUpperCase()}&emsp;{card.signed ? "Signed" : ""}{card.foil ? " Foil" : ""}{card.alter ? " Alter" : ""}</div>
                         <div className="right"></div>

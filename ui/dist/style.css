@@ -22,7 +22,9 @@ body.modern {
 .modern textarea {
     padding: 2px 5px;
     border: 0;
+    font-family: inherit;
     font-size: inherit;
+    font-weight: inherit;
 }
 .modern.dark textarea,
 .modern .dark textarea {
@@ -78,9 +80,13 @@ body.modern {
     vertical-align: top;
 }
 
+#deckPaste {
+    width: 225px;
+}
+
 .deck-area .status {
     padding: 0 5px;
-    margin-bottom: 15px;
+    margin-bottom: 30px;
     font-size: 150%;
     font-weight: 300;
 }
@@ -102,7 +108,7 @@ h2#deckTitle {
 }
 
 #deckInfo {
-    margin: 0 0 10px 0;
+    margin: 0 0 20px 0;
     padding: 5px;
 }
 
