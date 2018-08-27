@@ -26,9 +26,10 @@ export default class Card extends React.Component {
             fetch(`${config.host}/api/card?name=${encodeURIComponent(card.name)}&set=${card.set}&lang=${card.language}`)
             .then(res => res.json())
             .then(result => {
+                // Should probably update prop with a handler instead, but it's extra roundabout code
                 card.details = result;
 
-                // Should probably update prop with handler, but is extra pointless code
+                // TODO: defer image search to allow sorting earlier
                 this.props.onCardLoaded();
             });
             card.details = null;

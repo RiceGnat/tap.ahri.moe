@@ -13,119 +13,6 @@
         var boards = ["main", "side", "maybe", "acquire"];
         var types = ["sorcery", "instant", "enchantment", "artifact", "planeswalker", "creature", "land"];
 
-        function LoadPaste(decklist) {
-            var regex = /^(\d{1,3})x (.+)$/gm;
-            var m = regex.exec(decklist);
-            var cards = [];
-            var count = 0;
-            var i = 0;
-            while (m != null) {
-                var quantity = parseInt(m[1]);
-                var name = m[2].trim();
-                cards[i] = {
-                    name: name,
-                    board: "main",
-                    quantity: quantity,
-                    set: "",
-                    foil: false,
-                    alter: false,
-                    signed: false,
-                    language: "en"
-                }
-                count += quantity;
-                i++;
-                m = regex.exec(decklist)
-            }
-            deck = {
-                count: count,
-                list: cards
-            }
-
-            ChangeView("", function () {
-                $("#deckTitle").empty();
-                $("#deckInfo").empty();
-                $(".card-area").empty();
-                loadedCards = 0;
-
-                $("#deckTitle").text("Deck paste");
-                $("#deckInfo").append(`<li><b>Cards</b>&ensp;${deck.count}</li>`);
-
-                LoadCards();
-
-                $("#deckTitle").removeClass("hidden");
-                $("#deckInfo").removeClass("hidden");
-                $("#defaultView").show().removeClass("hidden");
-            })
-        }
-
-
-        function SortCards(deck) {
-            $("#sortedView .section").hide();
-            $("#sortedView").removeClass("commander");
-
-            boards.forEach(function (board) {
-                var cards = $(`.card-area .card.${board}`);
-                if (cards.length > 0) {
-                    $(`#sortedView .section.${board}`).show();
-
-                    if (board == "main") {
-                        var context = $(`#sortedView .section.${board}`);
-
-                        $("h3", context).hide();
-                        cards.appendTo(".section.other .card-area", context);
-
-                        types.forEach(function (type) {
-                            var subset = cards.filter(`.card.${type}`);
-
-                            if (subset.length > 0) {
-                                $(`.section.${type}`, context).show();
-                                subset.appendTo(`.section.${type} .card-area`, context);
-                                $(`.section.${type} .count`, context).text(subset.length);
-                            }
-                        });
-
-                        if (deck.commander) {
-                            $(".section.commander", context).show();
-                            deck.commander.forEach(function (element) {
-                                cards.filter(`.card:contains(${element})`).appendTo(".section.commander .card-area", context);
-                            });
-                            $("#sortedView").addClass("commander");
-                        }
-
-                        if ($(".section.other .card-area .card", context).length > 0) {
-                            $(".section.other", context).show();
-                        }
-                    }
-                    else {
-                        $("#sortedView .section.main h3").show();
-                        cards.appendTo(`#sortedView .section.${board} .card-area`);
-                    }
-
-                    $(`#sortedView .section.${board} h3 .count`).text($(`#sortedView .section.${board} .card`).length);
-                }
-            });
-
-            StackCards(deck);
-        }
-
-        function StackCards(deck) {
-            deck.list.forEach(function (card) {
-                var stack = $("#sortedView .card").map(function () {
-                    if (card.name == $(".card-title", this).text()) {
-                        return this;
-                    }
-                });
-
-                if (stack.length > 1) {
-                    for (var i = 1; i < stack.length; i++) {
-                        if (i % 4 != 0) $(stack[i - 1]).append(stack[i]);
-                    }
-                }
-            });
-
-            $(".card").draggable();
-        }
-
         function ChangeView(id, restage) {
             $(".view").addClass("hidden");
             setTimeout(function () {
@@ -168,15 +55,6 @@
         }
 
         $(function () {
-            // $("#searchForm").on("submit", function () {
-            //     LoadDeck();
-            //     return false;
-            // })
-
-            $("#pasteForm").on("submit", function () {
-                LoadPaste($("#deckPaste").val());
-                return false;
-            })
 
         });
     </script>

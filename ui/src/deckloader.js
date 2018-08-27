@@ -32,7 +32,7 @@ export default class DeckLoader extends React.Component {
     }
 
     fetchDeck(slug) {
-        this.props.onDeckLoaded(null);
+        //this.props.onDeckLoaded(null);
         this.setState({
             error: null,
             inProgress: true,
@@ -67,8 +67,8 @@ export default class DeckLoader extends React.Component {
             <div>
                 <form id="searchForm" onSubmit={this.formSubmitted}>
                     <input id="deckSearch" type="text" autoComplete="off" value={this.state.searchString} onChange={this.searchUpdated} /> <input type="submit" value="Load deck" disabled={this.state.inProgress} />
-                    <span className="loading" style={!this.state.inProgress ? {display: "none"} : null}>Fetching deck...</span>
                 </form>
+                <div className="loading" style={!this.state.inProgress ? {display: "none"} : null}>Fetching deck...</div>
                 {error}
             </div>
         )

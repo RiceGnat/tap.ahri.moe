@@ -1,7 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import DeckLoader from "./deckloader"
-import DeckView from "./deckview";
+import DeckLoader from "./DeckLoader";
+import PasteLoader from "./PasteLoader";
+import DeckView from "./DeckView";
 
 class App extends React.Component {
     constructor(props) {
@@ -19,6 +20,8 @@ class App extends React.Component {
     deckLoaded(deck) {
         // If we are mid-transition, defer to buffer
         if (this.state.waiting) {
+            console.log("waiting");
+            console.log(deck);
             this.setState({
                 bufferedDeck: deck
             });
@@ -31,6 +34,8 @@ class App extends React.Component {
                 bufferedDeck: deck
             });
             setTimeout(() => {
+                console.log("buffered deck");
+                console.log(this.state.bufferedDeck);
                 // Set deck to null first to force card cleanup
                 this.setState({
                     deck: null
@@ -56,9 +61,12 @@ class App extends React.Component {
     render() {
         return (
             <div>
-                <div id="controlBar" className="dark">
+                <div className="dark">
                     <div className="container">
-                        <DeckLoader onDeckLoaded={this.deckLoaded} />
+                        <div id="controlBar">
+                            <DeckLoader onDeckLoaded={this.deckLoaded} />
+                            <PasteLoader onDeckLoaded={this.deckLoaded} />
+                        </div>
                     </div>
                 </div>
                 <div className="container">

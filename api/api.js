@@ -86,14 +86,13 @@ module.exports = express.Router()
                         // Otherwise, pass error along
                         else throw error;
                     })
-                    // Standardize image properties
+                    // Fill in missing image properties if available
                     .then(newImg =>
-                        mergeImageProperties(img, newImg),
+                        Object.assign({}, img, newImg),
                     // Catch any errors to allow Promise.all to complete
                     error => error)
                 )).then(newImgs => {
                     var valid = newImgs
-                    .reduce((flat, current) => flat.concat(current), [])
                     .filter(img => img.url);
                     if (valid.length > 0) {
                         return valid;
@@ -166,12 +165,6 @@ function findGathererPrintings(multiverseId, set, lang, images) {
             }))
         );
     });
-}
-
-function mergeImageProperties(img, newImg) {
-    return Array.isArray(newImg) ? 
-    newImg.map(imgVar => Object.assign({}, img, imgVar))
-    : Object.assign({}, img, newImg);
 }
 
 function errorHandler(error, res) {
