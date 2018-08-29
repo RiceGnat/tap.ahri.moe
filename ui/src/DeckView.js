@@ -5,94 +5,114 @@ export default class DeckView extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            cards: null,
-            loadedCards: 0,
-            loaded: false,
-            view: "default",
-            cardsSorted: {},
-            cardsVisible: true,
-            status: null
+            // cards: null,
+            // loadedCards: 0,
+            // loaded: false,
+            // view: "default",
+            // cardsSorted: {},
+            // cardsVisible: true,
+            // status: null,
+            // sortingEnabled: false
         }
 
         this.cardLoaded = this.cardLoaded.bind(this);
+        this.changeView = this.changeView.bind(this);
     }
 
     cardLoaded() {
         this.setState((prevState) => ({
             loadedCards: prevState.loadedCards + 1,
-            status: `Loading cards... ${((prevState.loadedCards + 1)/this.props.deck.list.length*100).toFixed()}%`
+            status: `Loading cards... ${((prevState.loadedCards + 1)/this.state.deck.list.length*100).toFixed()}%`
         }));
     }
 
     componentDidMount() {
-        this.setState({});
+        console.log(this.props.deck);
+        //this.setState({});
     }
 
     componentDidUpdate(prevProps, prevState) {
-        const deck = this.props.deck;
-        // If deck has changed, reset cards
-        if (prevProps.deck !== deck) {
-            this.setState({
-                cards: null,
-                loaded: false,
-                loadedCards: 0,
-                view: "default",
-                cardsSorted: {},
-                status: "Loading..."
-            });
-        }
+        console.log(this.state.cardsVisible)
+        // If deck has changed, reset state
+        if (prevProps.deck !== this.props.deck) {
+            const deck = this.props.deck;
+            var cards = null;
 
-        if (prevState.view !== this.state.view) {
-            this.setState({
-                cardsVisible: true
-            });
-        }
-
-        // Deck is loaded
-        else if (deck) {
-            // If cards have not been loaded yet
-            if (!this.state.cards) {
-                var cards = [];
+            if (deck) {
+                cards = [];
                 deck.list.forEach((card) => {
                     for (var i = 0; i < card.quantity; i++) {
                         cards.push(card);
                     }
                 });
-                this.setState({
-                    cards: cards
-                });
-            }
-            else {
-                // If the current view has not been sorted yet
-                if (!this.state.cardsSorted.boardsSorted || !this.state.cardsSorted["main"][this.state.view]) {
-                    this.sortCards();
-                }
 
-                // All cards have been loaded
-                if (!this.state.loaded && this.state.loadedCards === deck.list.length) {
-                    this.setState({
-                        loaded: true,
-                        cardsVisible: false
-                    });
-                    setTimeout(() => {
-                        this.setState({
-                            view: "types",
-                            status: null
-                        });
-                    }, 500);
-                }
+                this.sortCards(deck);
             }
+
+            this.setState({
+                deck: deck,
+                cards: cards,
+                cardsVisible: true,
+                loaded: false,
+                loadedCards: 0,
+                view: "default",
+                cardsSorted: {},
+                status: "Loading...",
+                sortingEnabled: false,
+            });
+            return;
         }
+
+        const deck = this.state.deck;
+        // Deck is loaded
+        // if (deck) {
+        //     // If cards have not been loaded yet
+        //     if (!this.state.cards) {
+  
+        //     }
+        //     else {
+        //         // If the current view has not been sorted yet
+        //         if (!this.state.cardsSorted.boardsSorted || !this.state.cardsSorted["main"][this.state.view]) {
+        //             this.sortCards();
+        //         }
+
+        //         // All cards have been loaded
+        //         if (!this.state.loaded && this.state.loadedCards === deck.list.length) {
+        //             this.setState({
+        //                 loaded: true,
+        //                 status: null
+        //             });
+
+        //             // Automatically switch to card type view
+        //             this.changeView("types");
+        //         }
+        //     }
+        // }
     }
 
-    sortCards() {
-        const deck = this.props.deck;
+    changeView(view) {
+        this.setState({
+            cardsVisible: false
+        });
+        setTimeout(() => {
+            this.setState({
+                view: view
+            },
+            () => {
+                this.setState({
+                    cardsVisible: true
+                });
+            });
+        }, 500);
+    }
+
+    sortCards(deck, initial) {
         const view = this.state.view;
         var sorted = this.state.cardsSorted;
         const types = ["creature", "sorcery", "instant", "artifact", "enchantment", "planeswalker", "land", "other"];
 
         // First time sort
-        if (!sorted.boardsSorted) {
+        if (initial) {
             sorted.showBoards = false;
             sorted["main"] = {};
         }
@@ -101,7 +121,7 @@ export default class DeckView extends React.Component {
         sorted["main"][view] = view === "default" ? [] : {};
         this.state.cards.forEach(card => {
             if (card.board === "main") {
-                if (!sorted.boardsSorted && deck.commander && deck.commander.includes(card.name)) {
+                if (initial && deck.commander && deck.commander.includes(card.name)) {
                     if (!sorted[card.board]["commander"]) 
                         sorted[card.board]["commander"] = [];
                     sorted[card.board]["commander"].push(card);
@@ -125,7 +145,7 @@ export default class DeckView extends React.Component {
                         break;
                 }
             }
-            else if (!sorted.boardsSorted) {
+            else if (initialize) {
                 if (!sorted[card.board]) {
                     sorted[card.board] = [];
                 }
@@ -133,11 +153,12 @@ export default class DeckView extends React.Component {
                 sorted.showBoards = true;
             }
         });
-        sorted.boardsSorted = true;
 
         this.setState({
             cardsSorted: sorted
         });
+
+        return sorted;
     }
 
     stackCards(cards, i, key, depth) {
@@ -181,6 +202,7 @@ export default class DeckView extends React.Component {
     }
 
     renderCards() {
+        const deck = this.state.deck;
         const cards = this.state.cards;
         const cardsSorted = this.state.cardsSorted;
         const visible = this.state.cardsVisible;
@@ -190,7 +212,7 @@ export default class DeckView extends React.Component {
 
         if (!cardsSorted.boardsSorted) {
             return (
-                <div className={"view card-area" + (!visible ? " hidden" : "")}>
+                <div className={"view fade card-area" + (!visible ? " hidden" : "")}>
                     {this.mapCards(cards)}
                 </div>
             );
@@ -254,7 +276,7 @@ export default class DeckView extends React.Component {
                 });
             }
             return (
-                <div className={"view" + (this.props.deck.commander ? " commander" : "") + (!visible ? " hidden" : "") + (view !== "default" ? " sorted" : "")}>
+                <div className={"view fade" + (deck.commander ? " commander" : "") + (!visible ? " hidden" : "") + (view !== "default" ? " sorted" : "")}>
                     {sections}
                 </div>
             );
@@ -262,9 +284,10 @@ export default class DeckView extends React.Component {
     }
 
     render() {
-        const deck = this.props.deck;
+        //console.log('render');
+        const deck = this.state.deck;
         return (
-            <div className={"deck-area" + (!this.props.visible ? " hidden" : "")}>
+            <div className={"deck-area fade" + (!this.props.visible ? " hidden" : "")}>
                 {deck ?
                 <div className="header">
                     <h2 id="deckTitle">{deck.url ? <a href={deck.url} target="_blank">{deck.name}</a> : deck.name}</h2>
@@ -274,25 +297,67 @@ export default class DeckView extends React.Component {
                         {deck.count ? <li><b>Cards</b>&ensp;{deck.count}</li> : null}
                         {deck.description ? <li style={{display: "block"}}><b>Description</b><br />{deck.description}</li> : null}
                     </ul>
-                    <div className={"status" + (!this.state.cardsVisible ? " hidden" : "")}>
-                        {this.state.status ? 
-                        <span className="loading">{this.state.status}</span> :
-                        <div id="sortModes">
-                            Card sort
-                            <ul>
-                                <li>
-                                    <a href="javascript:void(0)">Default</a>
-                                </li>
-                                <li>
-                                    <a href="javascript:void(0)">Type</a>
-                                </li>
-                            </ul>
-                        </div>}
-                    </div>
+                    <DeckViewControls status={this.state.status} onViewChanged={this.changeView} />
                 </div>
                 : null}
                 {deck && this.state.cards ? this.renderCards() : null}
             </div>
         )
+    }
+}
+
+class DeckViewControls extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            visible: true,
+            status: this.props.status
+        }
+    }
+
+    componentDidMount() {
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.status !== this.props.status) {
+            if (this.props.status === null || prevProps.status === null) {
+                this.setState({
+                    visible: false
+                });
+                setTimeout(() => {
+                    this.setState({
+                        status: this.props.status
+                    },
+                    () => {
+                        this.setState({
+                            visible: true
+                        });
+                    });
+                }, 500);
+            }
+            else this.setState({
+                status: this.props.status
+            });
+        }
+    }
+
+    render() {
+        return (
+            <div className={"controls fade" + (!this.state.visible ? " hidden" : "")}>
+                {this.state.status !== null ? 
+                <span className="loading">{this.state.status}</span> :
+                <div id="sortModes">
+                    Card sort
+                    <ul>
+                        <li>
+                            <a href="javascript:void(0)" onClick={() => this.props.onViewChanged("default")}>Default</a>
+                        </li>
+                        <li>
+                            <a href="javascript:void(0)" onClick={() => this.props.onViewChanged("types")}>Type</a>
+                        </li>
+                    </ul>
+                </div>}
+            </div>
+        );
     }
 }

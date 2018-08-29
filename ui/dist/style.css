@@ -84,7 +84,7 @@ body.modern {
     width: 225px;
 }
 
-.deck-area .status {
+.deck-area .controls {
     padding: 0 5px;
     margin-bottom: 30px;
     font-size: 150%;
@@ -128,9 +128,7 @@ h2#deckTitle {
     margin-bottom: 91px;
 }
 
-.deck-area,
-.view,
-.status {
+.fade {
     transition: opacity linear .5s;
 }
 
