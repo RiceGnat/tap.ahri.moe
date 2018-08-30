@@ -28,7 +28,7 @@ module.exports = express.Router()
     const set = req.query.set ? req.query.set.trim().toUpperCase() : "";
     const lang = req.query.lang && req.query.lang.trim() != "" ? req.query.lang.trim().toLowerCase() : "en";
 
-    if (cache[[name, set, lang]]) return Promise.resolve(cache[[name, set, lang]]);
+    if (cache[[name, set, lang]]) return res.send(cache[[name, set, lang]]);
 
     // Begin by searching Scryfall
     scryfall.search(name, set, lang)

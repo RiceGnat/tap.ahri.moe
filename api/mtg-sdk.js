@@ -104,8 +104,24 @@ function GetPromoCard(name) {
     });
 }
 
+function GetSubtypes() {
+    const query = `https://api.magicthegathering.io/v1/subtypes`;
+    return new Promise((resolve, reject) => {
+        request.get({
+            url: query,
+            json: true
+        }, (err, resp, body) => {
+            if (err || resp.statusCode !== 200) reject(`MTG SDK request failed with ${err ? err : resp.statusCode}`);
+            else {
+                resolve(body.subtypes);
+            }
+        });
+    });
+}
+
 module.exports = {
     getCard: GetCard,
     getMCISetCode: GetMCISetCode,
-    getPromoCard: GetPromoCard
+    getPromoCard: GetPromoCard,
+    getSubtypes: GetSubtypes
 }

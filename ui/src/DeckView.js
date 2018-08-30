@@ -6,7 +6,9 @@ const stable = require("stable");
 const boards = ["side", "maybe", "acquire"];
 const boardLabels = ["Sideboard", "Maybe", "Acquire"];
 const types = ["creature", "sorcery", "instant", "artifact", "enchantment", "planeswalker", "land", "other"];
-const typeLabels = ["Creatures", "Sorceries", "Instants", "Artifacts", "Enchantments", "Planeswalkers", "Lands", "Other"]
+const typeLabels = ["Creatures", "Sorceries", "Instants", "Artifacts", "Enchantments", "Planeswalkers", "Lands", "Other"];
+const colors = ["w", "u", "b", "r", "g", "multi", "none"];
+const colorLabels = ["White", "Blue", "Black", "Red", "Green", "Multicolor", "Colorless"];
 
 export default class DeckView extends React.Component {
     constructor(props) {
@@ -72,8 +74,9 @@ export default class DeckView extends React.Component {
                     loaded: true,
                     status: null
                 }, () => {
-                    // Automatically switch to card type view
-                    this.changeView("types");
+                    // Automatically switch to view if specified via anchor
+                    const view = window.location.hash;
+                    if (view !== "") this.changeView(view.substring(1));
                 });
             }
         }
@@ -97,6 +100,19 @@ export default class DeckView extends React.Component {
                 });
             });
         }, 500);
+    }
+
+    typeSort(types, cardTypes, card, view, sorted) {
+        types.some((type) => {
+            if (type === "other" || (cardTypes.includes(type))) {
+                if (!sorted["main"][view][type])
+                    sorted["main"][view][type] = [];
+
+                sorted["main"][view][type].push(card);
+                return true;
+            }
+            else return false;
+        });
     }
 
     sortCards(deck, cards, view, sorted) {
@@ -127,6 +143,15 @@ export default class DeckView extends React.Component {
                 return a.details.cmc - b.details.cmc;
         });
 
+        // Find all subtypes in deck if applicable
+        if (view === "subtypes") {
+            sorted["main"][view]["all"] = deck.list.map(card => card.details ? card.details.subtypes : [])
+            .reduce((all, current) =>
+                all.concat(current.filter(subtype => !all.includes(subtype)))
+            , []);
+            sorted["main"][view]["all"].sort().push("other");
+        }
+
         presort.forEach(card => {
             if (card.board === "main") {
                 if (deck.commander && deck.commander.includes(card.name)) {
@@ -139,16 +164,10 @@ export default class DeckView extends React.Component {
                 }
                 switch (view) {
                     case "types":
-                        types.some((type) => {
-                            if (type === "other" || (card.details && card.details.types.includes(type))) {
-                                if (!sorted[card.board][view][type])
-                                    sorted[card.board][view][type] = [];
-    
-                                sorted[card.board][view][type].push(card);
-                                return true;
-                            }
-                            else return false;
-                        });
+                        this.typeSort(types, card.details ? card.details.types : [], card, view, sorted);
+                        break;
+                    case "subtypes":
+                        this.typeSort(sorted[card.board][view]["all"], card.details ? card.details.subtypes : [], card, view, sorted);
                         break;
                     default:
                         sorted[card.board][view]["all"].push(card);
@@ -206,6 +225,26 @@ export default class DeckView extends React.Component {
         }
     }
 
+    renderCardCategories(types, typeLabels, view, cards, cardsSorted) {
+        return types.map((type, i) => {
+            if (cardsSorted["main"][view][type]) return ( 
+                <div key={type} className={type + " section"}>
+                    <h4>{typeLabels[i]}<span className="count">{
+                        type === "other" ? cardsSorted["main"][view]["other"].length : 
+                        cards.filter((card) =>
+                            card.board === "main" && card.details &&
+                            (view === "types" ? card.details.types :
+                            (view === "subtypes" ? card.details.subtypes : []))
+                            .includes(type)).length
+                    }</span></h4>
+                    <div className="card-area">
+                        {this.mapCards(cardsSorted["main"][view][type], true)}
+                    </div>
+                </div>
+            );
+        });
+    }
+
     renderCards() {
         const deck = this.props.deck;
         const cards = this.state.cards;
@@ -236,16 +275,14 @@ export default class DeckView extends React.Component {
             var main;
             switch (view) {
                 case "types":
-                    main = types.map((type, i) => {
-                        if (cardsSorted["main"][view][type]) return ( 
-                            <div key={type} className={type + " section"}>
-                                <h4>{typeLabels[i]}<span className="count">{cards.filter((card) => card.board === "main" && (type === "other" ? !card.details : (card.details && card.details.types.includes(type)))).length}</span></h4>
-                                <div className="card-area">
-                                    {this.mapCards(cardsSorted["main"][view][type], true)}
-                                </div>
-                            </div>
-                        );
-                    });
+                    main = this.renderCardCategories(types, typeLabels, view, cards, cardsSorted);
+                    break;
+                case "subtypes":
+                    main = this.renderCardCategories(cardsSorted["main"][view]["all"],
+                        cardsSorted["main"][view]["all"].map(subtype =>
+                            subtype === "other" ? "None" :
+                            subtype.split(" ").map((s) => s.charAt(0).toUpperCase() + s.substring(1)).join(' ')),
+                        view, cards, cardsSorted);
                     break;
                 default:
                     main =
@@ -349,16 +386,19 @@ class DeckViewControls extends React.Component {
                     Card sort
                     <ul>
                         <li>
-                            <a href="javascript:void(0)" onClick={() => this.props.onViewChanged("default")}>Unsorted</a>
-                        </li>
-                        <li>
                             <a href="javascript:void(0)" onClick={() => this.props.onViewChanged("name")}>Name</a>
                         </li>
                         <li>
                             <a href="javascript:void(0)" onClick={() => this.props.onViewChanged("cmc")}>Mana</a>
                         </li>
                         <li>
-                            <a href="javascript:void(0)" onClick={() => this.props.onViewChanged("types")}>Type</a>
+                            <a href="javascript:void(0)" onClick={() => this.props.onViewChanged("types")}>Types</a>
+                        </li>
+                        <li>
+                            <a href="javascript:void(0)" onClick={() => this.props.onViewChanged("subtypes")}>Subtypes</a>
+                        </li>
+                        <li>
+                            <a href="javascript:void(0)" onClick={() => this.props.onViewChanged("default")}>Unsorted</a>
                         </li>
                     </ul>
                 </div>}
