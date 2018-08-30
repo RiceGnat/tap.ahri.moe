@@ -116,19 +116,11 @@ export default class DeckView extends React.Component {
     }
 
     sortCards(deck, cards, view, sorted) {
-        // First time sort
-        if (!sorted.boardsSorted) {
-            sorted.showBoards = false;
-            sorted["main"] = {};
-        }
-        
-        // Assume if this function is called, we need to initialize view
-        sorted["main"][view] = {
-            all: []
-        };
-        
+        // Presort cards by name
         var presort = cards.slice();
         if (view !== "default") presort.sort((a, b) => a.name.toUpperCase() <= b.name.toUpperCase() ? -1 : 1);
+
+        // CMC sort
         if (view === "cmc") presort = stable(presort, (a, b) => {
             if (!a.details)
                 return !b.details ? 0 : 1;
@@ -142,6 +134,40 @@ export default class DeckView extends React.Component {
             else
                 return a.details.cmc - b.details.cmc;
         });
+
+        var main = cards;
+
+        // If this is the initial sort, separate non-maindeck
+        if (!sorted.boardsSorted) {
+            sorted.showBoards = false;
+            sorted["main"] = {};
+
+            // Separate commander
+            if (deck.commander) {
+                sorted["commander"] = cards.filter(card => deck.commander.includes(card.name));
+                main = main.filter(card => !deck.commander.includes(card.name));
+            }
+
+            // Get boards
+            boards.forEach(board => {
+                sorted[card.board] = {
+                    cards: main.filter(card => card.board === board)
+                }
+                if (sorted[card.board].cards.length > 0) sorted.showBoards = true;
+            });
+
+            sorted.boardsSorted = true;
+        }
+
+        // The maindeck
+        main = main.filter(card => card.board === "main");
+        
+        // Initialize view
+        sorted["main"][view] = {
+            all: []
+        };
+        
+        
 
         // Find all subtypes in deck if applicable
         if (view === "subtypes") {
@@ -164,7 +190,17 @@ export default class DeckView extends React.Component {
                 }
                 switch (view) {
                     case "types":
-                        this.typeSort(types, card.details ? card.details.types : [], card, view, sorted);
+                        //this.typeSort(types, card.details ? card.details.types : [], card, view, sorted);
+                        types.some((type) => {
+                            if (type === "other" || (cardTypes.includes(type))) {
+                                if (!sorted["main"][view][type])
+                                    sorted["main"][view][type] = [];
+                
+                                sorted["main"][view][type].push(card);
+                                return true;
+                            }
+                            else return false;
+                        });
                         break;
                     case "subtypes":
                         this.typeSort(sorted[card.board][view]["all"], card.details ? card.details.subtypes : [], card, view, sorted);
