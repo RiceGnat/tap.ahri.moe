@@ -146,29 +146,6 @@ function GetMCIImage(lang, set, number, noAdjust) {
     });
 }
 
-function GetMCIVariations(lang, set, number, index) {
-    return GetMCIImage(lang, set, number + index).then(result => 
-        GetMCIVariations(lang, set, number, String.fromCharCode(index.charCodeAt() + 1))
-        .then(nextResult => [result].concat(nextResult),
-        error => [result])
-    );
-}
-
-function GetMultiverseID(name, set) {
-    const query = `${host}/cards/named?exact=${encodeURIComponent(name)}&set=${set}`;
-
-    return new Promise((resolve, reject) => {
-        request.get({
-            url: query,
-            json: true
-        }, (err, resp, body) => {
-            if (err || resp.statusCode !== 200) return reject(`Scryfall request failed with : ${err ? err : resp.statusCode}`);
-
-            resolve(body.multiverse_id)
-        });
-    });
-}
-
 module.exports = {
     getCard: GetCard,
     getMCIImage: GetMCIImage,
