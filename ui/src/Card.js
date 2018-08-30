@@ -37,7 +37,7 @@ export default class Card extends React.Component {
             error => {
                 card.error = error;
             })
-            .then(() => this.props.onCardLoaded());
+            .then(() => this.props.onCardLoaded(card.deckId));
             card.details = null;
         }
     }

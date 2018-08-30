@@ -20,8 +20,6 @@ class App extends React.Component {
     deckLoaded(deck) {
         // If we are mid-transition, defer to buffer
         if (this.state.waiting) {
-            console.log("waiting");
-            console.log(deck);
             this.setState({
                 bufferedDeck: deck
             });
@@ -34,8 +32,6 @@ class App extends React.Component {
                 bufferedDeck: deck
             });
             setTimeout(() => {
-                console.log("buffered deck");
-                console.log(this.state.bufferedDeck);
                 // Set deck to null first to force card cleanup
                 this.setState({
                     deck: null
