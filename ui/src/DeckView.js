@@ -112,11 +112,16 @@ export default class DeckView extends React.Component {
         };
         
         var presort = cards.slice();
-        if (view !== "default") presort.sort((a, b) => a.name <= b.name ? -1 : 1);
+        if (view !== "default") presort.sort((a, b) => a.name.toUpperCase() <= b.name.toUpperCase() ? -1 : 1);
         if (view === "cmc") presort = stable(presort, (a, b) => {
-            if (a.details.types.includes("land") && !b.details.types.includes("land"))
-                return 1;
-            else if (b.details.types.includes("land") && !a.details.types.includes("land"))
+            if (!a.details)
+                return !b.details ? 0 : 1;
+            else if (!b.details)
+                return -1;
+
+            if (a.details.types.includes("land"))
+                return !b.details.types.includes("land") ? 1 : 0;
+            else if (b.details.types.includes("land"))
                 return -1;
             else
                 return a.details.cmc - b.details.cmc;
@@ -190,8 +195,8 @@ export default class DeckView extends React.Component {
                 }
                 else {
                     var id = currentCard.details.id;
-                    matching = remaining.filter(card => card.details.id === id);
-                    remaining = remaining.filter(card => card.details.id !== id);
+                    matching = remaining.filter(card => card.details && card.details.id === id);
+                    remaining = remaining.filter(card => !matching.includes(card));
                 }
                 for (var i = 0; i < matching.length; i += 4)
                     cards.push(this.stackCards(matching, i, n));
