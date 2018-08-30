@@ -25,7 +25,8 @@
     "mtgsdk": "^0.3.0",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
-    "request": "^2.87.0"
+    "request": "^2.87.0",
+    "stable": "^0.1.8"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",

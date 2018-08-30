@@ -1,6 +1,13 @@
 import React from "react";
 import Card from "./Card";
 
+const stable = require("stable");
+
+const boards = ["side", "maybe", "acquire"];
+const boardLabels = ["Sideboard", "Maybe", "Acquire"];
+const types = ["creature", "sorcery", "instant", "artifact", "enchantment", "planeswalker", "land", "other"];
+const typeLabels = ["Creatures", "Sorceries", "Instants", "Artifacts", "Enchantments", "Planeswalkers", "Lands", "Other"]
+
 export default class DeckView extends React.Component {
     constructor(props) {
         super(props);
@@ -22,6 +29,7 @@ export default class DeckView extends React.Component {
 
     componentDidUpdate(prevProps) {
         const deck = this.props.deck;
+
         // If deck has changed, reset state
         if (prevProps.deck !== deck) {
             var cards = null;
@@ -92,8 +100,6 @@ export default class DeckView extends React.Component {
     }
 
     sortCards(deck, cards, view, sorted) {
-        const types = ["creature", "sorcery", "instant", "artifact", "enchantment", "planeswalker", "land", "other"];
-
         // First time sort
         if (!sorted.boardsSorted) {
             sorted.showBoards = false;
@@ -101,19 +107,32 @@ export default class DeckView extends React.Component {
         }
         
         // Assume if this function is called, we need to initialize view
-        sorted["main"][view] = view === "default" ? [] : {};
-        cards.forEach(card => {
+        sorted["main"][view] = {
+            all: []
+        };
+        
+        var presort = cards.slice();
+        if (view !== "default") presort.sort((a, b) => a.name <= b.name ? -1 : 1);
+        if (view === "cmc") presort = stable(presort, (a, b) => {
+            if (a.details.types.includes("land") && !b.details.types.includes("land"))
+                return 1;
+            else if (b.details.types.includes("land") && !a.details.types.includes("land"))
+                return -1;
+            else
+                return a.details.cmc - b.details.cmc;
+        });
+
+        presort.forEach(card => {
             if (card.board === "main") {
-                if (!sorted.boardsSorted && deck.commander && deck.commander.includes(card.name)) {
-                    if (!sorted[card.board]["commander"]) 
-                        sorted[card.board]["commander"] = [];
-                    sorted[card.board]["commander"].push(card);
+                if (deck.commander && deck.commander.includes(card.name)) {
+                    if (!sorted.boardsSorted) {
+                        if (!sorted[card.board]["commander"]) 
+                            sorted[card.board]["commander"] = [];
+                        sorted[card.board]["commander"].push(card);
+                    }
                     return;
                 }
                 switch (view) {
-                    case "default":
-                        sorted[card.board][view].push(card);
-                        break;
                     case "types":
                         types.some((type) => {
                             if (type === "other" || (card.details && card.details.types.includes(type))) {
@@ -126,6 +145,8 @@ export default class DeckView extends React.Component {
                             else return false;
                         });
                         break;
+                    default:
+                        sorted[card.board][view]["all"].push(card);
                 }
             }
             else if (!sorted.boardsSorted) {
@@ -186,8 +207,6 @@ export default class DeckView extends React.Component {
         const cardsSorted = this.state.cardsSorted;
         const visible = this.state.cardsVisible;
         const view = this.state.view;
-        const boards = ["side", "maybe", "acquire"];
-        const boardLabels = ["Sideboard", "Maybe", "Acquire"];
 
         if (!cardsSorted.boardsSorted) {
             return (
@@ -211,16 +230,7 @@ export default class DeckView extends React.Component {
 
             var main;
             switch (view) {
-                case "default":
-                    main =
-                        <div className="card-area">
-                            {this.mapCards(cardsSorted["main"][view])}
-                        </div>
-                    break;
                 case "types":
-                    const types = ["creature", "sorcery", "instant", "artifact", "enchantment", "planeswalker", "land", "other"]
-                    const typeLabels = ["Creatures", "Sorceries", "Instants", "Artifacts", "Enchantments", "Planeswalkers", "Lands", "Other"]
-
                     main = types.map((type, i) => {
                         if (cardsSorted["main"][view][type]) return ( 
                             <div key={type} className={type + " section"}>
@@ -232,17 +242,24 @@ export default class DeckView extends React.Component {
                         );
                     });
                     break;
+                default:
+                    main =
+                        <div className="card-area">
+                            {this.mapCards(cardsSorted["main"][view]["all"], view !== "default")}
+                        </div>
             }
+
             sections.push(
                 <div key="main" className="main section">
                     {cardsSorted.showBoards ?
-                    <h3>Main<span className="count">{view === "default" ? cardsSorted["main"][view].length : Object.values(cardsSorted["main"][view]).reduce((sum, type) => sum + type.length, 0)}</span></h3>
+                    <h3>Main<span className="count">{Object.values(cardsSorted["main"][view]).reduce((sum, type) => sum + type.length, 0)}</span></h3>
                     : null}
                     {main}
                 </div>
             );
+
             if (cardsSorted.showBoards) {
-                boards.map((board, i) => {
+                boards.forEach((board, i) => {
                     if (cardsSorted[board])
                         sections.push(
                             <div key="board" className={board + " section"}>
@@ -254,6 +271,7 @@ export default class DeckView extends React.Component {
                         );
                 });
             }
+
             return (
                 <div className={"view fade" + (deck.commander ? " commander" : "") + (!visible ? " hidden" : "") + (view !== "default" ? " sorted" : "")}>
                     {sections}
@@ -326,7 +344,13 @@ class DeckViewControls extends React.Component {
                     Card sort
                     <ul>
                         <li>
-                            <a href="javascript:void(0)" onClick={() => this.props.onViewChanged("default")}>Default</a>
+                            <a href="javascript:void(0)" onClick={() => this.props.onViewChanged("default")}>Unsorted</a>
+                        </li>
+                        <li>
+                            <a href="javascript:void(0)" onClick={() => this.props.onViewChanged("name")}>Name</a>
+                        </li>
+                        <li>
+                            <a href="javascript:void(0)" onClick={() => this.props.onViewChanged("cmc")}>Mana</a>
                         </li>
                         <li>
                             <a href="javascript:void(0)" onClick={() => this.props.onViewChanged("types")}>Type</a>
