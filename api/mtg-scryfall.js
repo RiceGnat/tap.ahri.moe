@@ -2,26 +2,19 @@ const request = require("request");
 
 const host = "https://api.scryfall.com";
 
-var cache = {};
-
 function GetCard(name, set) {
     const query = `${host}/cards/named?exact=${encodeURIComponent(name)}&set=${set}`;
 
     return new Promise((resolve, reject) => {
-        if (cache[[name, set]])
-            resolve(cache[[name, set]]);
-        else {
-            request.get({
-                url: query,
-                json: true
-            }, (err, resp, body) => {
-                if (err || resp.statusCode !== 200) return reject(`Scryfall request failed with : ${err ? err : resp.statusCode}`);
+        request.get({
+            url: query,
+            json: true
+        }, (err, resp, body) => {
+            if (err || resp.statusCode !== 200) return reject(`Scryfall request failed with : ${err ? err : resp.statusCode}`);
 
-                const result = ExtractCardProps(body);
-                cache[[name, set]] = result;
-                resolve(result);
-            });
-        }
+            const result = ExtractCardProps(body);
+            resolve(result);
+        });
     });
 }
 
@@ -34,22 +27,16 @@ function Search(name, set, lang) {
     const query = `${host}/cards/search?q=!"${encodeURIComponent(name)}"+game:paper+lang:${lang}+${(isMasterpiece ? "is" : (isPromo ? "is" : (isSetDefined ? "s:" + set : "") + "+not") + ":promo+not") + ":masterpiece"}&order=released&unique=prints`;
     
     return new Promise((resolve, reject) => {
-        // Check cache first
-        if (cache[[name, set, lang]])
-            resolve(cache[[name, set, lang]]);
-        else {
-            // Perform request
-            request.get({
-                url: query,
-                json: true
-            }, (err, resp, body) => {
-                if (err || resp.statusCode !== 200) return reject(`Scryfall request failed with : ${err ? err : resp.statusCode}`);
+        // Perform request
+        request.get({
+            url: query,
+            json: true
+        }, (err, resp, body) => {
+            if (err || resp.statusCode !== 200) return reject(`Scryfall request failed with : ${err ? err : resp.statusCode}`);
 
-                const result = ExtractCardProps(body);
-                cache[[name, set, lang]] = result;
-                resolve(result);
-            });
-        }
+            const result = ExtractCardProps(body);
+            resolve(result);
+        });
     });
 }
 

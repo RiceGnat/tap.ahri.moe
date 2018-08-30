@@ -6,6 +6,8 @@ const scryfall = require("./mtg-scryfall");
 const gatherer = require("./mtg-gatherer");
 const deckmaster = require("./mtg-deckmaster");
 
+const cache = [];
+
 module.exports = express.Router()
 
 .use((req, res, next) => {
@@ -25,6 +27,8 @@ module.exports = express.Router()
     const name = req.query.name.trim();
     const set = req.query.set ? req.query.set.trim().toUpperCase() : "";
     const lang = req.query.lang && req.query.lang.trim() != "" ? req.query.lang.trim().toLowerCase() : "en";
+
+    if (cache[[name, set, lang]]) return Promise.resolve(cache[[name, set, lang]]);
 
     // Begin by searching Scryfall
     scryfall.search(name, set, lang)
@@ -140,8 +144,11 @@ module.exports = express.Router()
         return card;
     })
     // Send the card off
-    .then(card => res.send(card),
-    // At this point something went wrong, so give up and return an error response
+    .then(card => {
+        cache[[name, set, lang]] = card;
+        res.send(card);
+    },
+    // At this point if we don't have a card something went wrong, so give up and return an error response
     error => errorHandler(error, res)
     );
 });
