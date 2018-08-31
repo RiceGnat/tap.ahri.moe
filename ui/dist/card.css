@@ -99,6 +99,9 @@
         z-index: 1;
     }
 
+    .card.ghost {
+        opacity: 0.5;
+    }
 
 
 @keyframes foilshift {

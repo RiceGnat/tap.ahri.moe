@@ -175,9 +175,19 @@ export default class DeckView extends React.Component {
             case "types":
                 types.forEach(type => {
                     var section = main.filter(card =>
-                        type !== "other" ? card.details && card.details.types[0] === type
+                        type !== "other" ? card.details && card.details.types.includes(type)
                         : !card.details
                     );
+
+                    if (type !== "other") {
+                        section = section.map(card => 
+                            card.details.types.length > 1 &&
+                            type !== types[Math.min(... card.details.types.map(type => types.indexOf(type)).filter(i => i > -1))] ? Object.assign({
+                                ghost: true,
+                                source: card
+                            }, card) : card
+                        )
+                    }
 
                     sorted["main"][view][type] = {
                         cards: section,
@@ -197,10 +207,18 @@ export default class DeckView extends React.Component {
                     var section = main.filter(card =>
                         type !== "other" ?
                         card.details && card.details.subtypes.length > 0 && 
-                        (card.details.subtypes[0] === "elder" ? card.details.subtypes[1] === type
-                            : card.details.subtypes[0] === type)
+                        card.details.subtypes.filter(type => type !== "elder").includes(type)
                         : !card.details || card.details.subtypes.length === 0
                     );
+
+                    if (type !== "other") {
+                        section = section.map(card => 
+                            card.details.subtypes.filter(type => type !== "elder").indexOf(type) > 0 ? Object.assign({
+                                ghost: true,
+                                source: card
+                            }, card) : card
+                        )
+                    }
 
                     sorted["main"][view][type] = {
                         cards: section,
@@ -260,7 +278,7 @@ export default class DeckView extends React.Component {
 
     renderCardCategories(types, typeLabels, view, cardsSorted) {
         return types.map((type, i) => {
-            if (cardsSorted["main"][view][type] && cardsSorted["main"][view][type].cards.length > 0) return ( 
+            if (cardsSorted["main"][view][type]) return ( 
                 <div key={type} className={type + " section"}>
                     <h4>{typeLabels[i]}<span className="count">{cardsSorted["main"][view][type].count}</span></h4>
                     <div className="card-area">
@@ -273,7 +291,6 @@ export default class DeckView extends React.Component {
 
     renderCards() {
         const deck = this.props.deck;
-        const cards = this.state.cards;
         const cardsSorted = this.state.cardsSorted;
         const visible = this.state.cardsVisible;
         const view = this.state.view;
