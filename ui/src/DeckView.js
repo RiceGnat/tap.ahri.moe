@@ -116,12 +116,44 @@ export default class DeckView extends React.Component {
     }
 
     sortCards(deck, cards, view, sorted) {
+        // The maindeck
+        var main;
+
+        // If this is the initial sort, separate non-maindeck
+        if (!sorted["main"]) {
+            sorted["main"] = {};
+
+            // Separate commander
+            if (deck.commander) {
+                sorted["commander"] = cards.filter(card => deck.commander.includes(card.name));
+                main = cards.filter(card => !deck.commander.includes(card.name));
+            }
+            else {
+                main = cards;
+            }
+
+            // The maindeck
+            main = main.filter(card => card.board === "main");
+
+            // Get boards
+            boards.forEach(board => {
+                sorted[board] = {
+                    cards: main.filter(card => card.board === board)
+                }
+                sorted[board].count = sorted[board].cards.length;
+                if (sorted[board].count > 0) sorted.showBoards = true;
+            });
+        }
+        else {
+            // Retrieve maindeck
+            main = sorted["main"]["default"].cards;
+        }
+        
         // Presort cards by name
-        var presort = cards.slice();
-        if (view !== "default") presort.sort((a, b) => a.name.toUpperCase() <= b.name.toUpperCase() ? -1 : 1);
+        if (view !== "default") main.sort((a, b) => a.name.toUpperCase() <= b.name.toUpperCase() ? -1 : 1);
 
         // CMC sort
-        if (view === "cmc") presort = stable(presort, (a, b) => {
+        if (view === "cmc") main = stable(main, (a, b) => {
             if (!a.details)
                 return !b.details ? 0 : 1;
             else if (!b.details)
@@ -134,91 +166,56 @@ export default class DeckView extends React.Component {
             else
                 return a.details.cmc - b.details.cmc;
         });
-
-        var main = cards;
-
-        // If this is the initial sort, separate non-maindeck
-        if (!sorted.boardsSorted) {
-            sorted.showBoards = false;
-            sorted["main"] = {};
-
-            // Separate commander
-            if (deck.commander) {
-                sorted["commander"] = cards.filter(card => deck.commander.includes(card.name));
-                main = main.filter(card => !deck.commander.includes(card.name));
-            }
-
-            // Get boards
-            boards.forEach(board => {
-                sorted[card.board] = {
-                    cards: main.filter(card => card.board === board)
-                }
-                if (sorted[card.board].cards.length > 0) sorted.showBoards = true;
-            });
-
-            sorted.boardsSorted = true;
-        }
-
-        // The maindeck
-        main = main.filter(card => card.board === "main");
         
         // Initialize view
-        sorted["main"][view] = {
-            all: []
-        };
+        sorted["main"][view] = {};
         
-        
+        // Sort maindeck into sections
+        switch (view) {
+            case "types":
+                types.forEach(type => {
+                    var section = main.filter(card =>
+                        type !== "other" ? card.details && card.details.types[0] === type
+                        : !card.details
+                    );
 
-        // Find all subtypes in deck if applicable
-        if (view === "subtypes") {
-            sorted["main"][view]["all"] = deck.list.map(card => card.details ? card.details.subtypes : [])
-            .reduce((all, current) =>
-                all.concat(current.filter(subtype => !all.includes(subtype)))
-            , []);
-            sorted["main"][view]["all"].sort().push("other");
-        }
-
-        presort.forEach(card => {
-            if (card.board === "main") {
-                if (deck.commander && deck.commander.includes(card.name)) {
-                    if (!sorted.boardsSorted) {
-                        if (!sorted[card.board]["commander"]) 
-                            sorted[card.board]["commander"] = [];
-                        sorted[card.board]["commander"].push(card);
+                    sorted["main"][view][type] = {
+                        cards: section,
+                        count: type !== "other" ?
+                            main.filter(card => card.details && card.details.types.includes(type)).length
+                            : section.length
                     }
-                    return;
-                }
-                switch (view) {
-                    case "types":
-                        //this.typeSort(types, card.details ? card.details.types : [], card, view, sorted);
-                        types.some((type) => {
-                            if (type === "other" || (cardTypes.includes(type))) {
-                                if (!sorted["main"][view][type])
-                                    sorted["main"][view][type] = [];
+                })
+                break;
+            case "subtypes":
+                // Find all subtypes in deck first
+                sorted["main"][view]["list"] = deck.list.map(card => card.details ? card.details.subtypes : [])
+                    .reduce((all, current) => all.concat(current.filter(subtype => !all.includes(subtype))), []);
+                sorted["main"][view]["list"].sort().push("other");
                 
-                                sorted["main"][view][type].push(card);
-                                return true;
-                            }
-                            else return false;
-                        });
-                        break;
-                    case "subtypes":
-                        this.typeSort(sorted[card.board][view]["all"], card.details ? card.details.subtypes : [], card, view, sorted);
-                        break;
-                    default:
-                        sorted[card.board][view]["all"].push(card);
-                }
-            }
-            else if (!sorted.boardsSorted) {
-                if (!sorted[card.board]) {
-                    sorted[card.board] = [];
-                }
-                sorted[card.board].push(card);
-                sorted.showBoards = true;
-            }
-        });
+                sorted["main"][view]["list"].forEach(type => {
+                    var section = main.filter(card =>
+                        type !== "other" ?
+                        card.details && card.details.subtypes.length > 0 && 
+                        (card.details.subtypes[0] === "elder" ? card.details.subtypes[1] === type
+                            : card.details.subtypes[0] === type)
+                        : !card.details || card.details.subtypes.length === 0
+                    );
 
-        sorted.boardsSorted = true;
+                    sorted["main"][view][type] = {
+                        cards: section,
+                        count: type !== "other" ?
+                            main.filter(card => card.details && card.details.subtypes.includes(type)).length
+                            : section.length
+                    }
+                })
+                break;
+            default:
+                sorted["main"][view] = {
+                    cards: main,
+                    count: main.length
+                }
+        }
     }
 
     stackCards(cards, i, key, depth) {
@@ -261,20 +258,13 @@ export default class DeckView extends React.Component {
         }
     }
 
-    renderCardCategories(types, typeLabels, view, cards, cardsSorted) {
+    renderCardCategories(types, typeLabels, view, cardsSorted) {
         return types.map((type, i) => {
-            if (cardsSorted["main"][view][type]) return ( 
+            if (cardsSorted["main"][view][type] && cardsSorted["main"][view][type].cards.length > 0) return ( 
                 <div key={type} className={type + " section"}>
-                    <h4>{typeLabels[i]}<span className="count">{
-                        type === "other" ? cardsSorted["main"][view]["other"].length : 
-                        cards.filter((card) =>
-                            card.board === "main" && card.details &&
-                            (view === "types" ? card.details.types :
-                            (view === "subtypes" ? card.details.subtypes : []))
-                            .includes(type)).length
-                    }</span></h4>
+                    <h4>{typeLabels[i]}<span className="count">{cardsSorted["main"][view][type].count}</span></h4>
                     <div className="card-area">
-                        {this.mapCards(cardsSorted["main"][view][type], true)}
+                        {this.mapCards(cardsSorted["main"][view][type].cards, true)}
                     </div>
                 </div>
             );
@@ -288,21 +278,14 @@ export default class DeckView extends React.Component {
         const visible = this.state.cardsVisible;
         const view = this.state.view;
 
-        if (!cardsSorted.boardsSorted) {
-            return (
-                <div className={"view fade card-area" + (!visible ? " hidden" : "")}>
-                    {this.mapCards(cards)}
-                </div>
-            );
-        }
-        else if (cardsSorted["main"][view]) {
+        if (cardsSorted["main"][view]) {
             var sections = [];
-            if (cardsSorted["main"]["commander"]) {
+            if (cardsSorted["commander"]) {
                 sections.push(
                     <div key="commander" className="commander section">
                         <h3>Commander</h3>
                         <div className="card-area">
-                            {this.mapCards(cardsSorted["main"]["commander"])}
+                            {this.mapCards(cardsSorted["commander"])}
                         </div>
                     </div>
                 )
@@ -311,26 +294,26 @@ export default class DeckView extends React.Component {
             var main;
             switch (view) {
                 case "types":
-                    main = this.renderCardCategories(types, typeLabels, view, cards, cardsSorted);
+                    main = this.renderCardCategories(types, typeLabels, view, cardsSorted);
                     break;
                 case "subtypes":
-                    main = this.renderCardCategories(cardsSorted["main"][view]["all"],
-                        cardsSorted["main"][view]["all"].map(subtype =>
+                    main = this.renderCardCategories(cardsSorted["main"][view]["list"],
+                        cardsSorted["main"][view]["list"].map(subtype =>
                             subtype === "other" ? "None" :
                             subtype.split(" ").map((s) => s.charAt(0).toUpperCase() + s.substring(1)).join(' ')),
-                        view, cards, cardsSorted);
+                        view, cardsSorted);
                     break;
                 default:
                     main =
                         <div className="card-area">
-                            {this.mapCards(cardsSorted["main"][view]["all"], view !== "default")}
+                            {this.mapCards(cardsSorted["main"][view].cards, view !== "default")}
                         </div>
             }
 
             sections.push(
                 <div key="main" className="main section">
                     {cardsSorted.showBoards ?
-                    <h3>Main<span className="count">{Object.values(cardsSorted["main"][view]).reduce((sum, type) => sum + type.length, 0)}</span></h3>
+                    <h3>Main<span className="count">{cardsSorted["main"]["default"].count}</span></h3>
                     : null}
                     {main}
                 </div>
@@ -341,9 +324,9 @@ export default class DeckView extends React.Component {
                     if (cardsSorted[board])
                         sections.push(
                             <div key="board" className={board + " section"}>
-                                <h3>{boardLabels[i]}<span className="count">{cardsSorted[board].length}</span></h3>
+                                <h3>{boardLabels[i]}<span className="count">{cardsSorted[board].count}</span></h3>
                                 <div className="card-area">
-                                    {this.mapCards(cardsSorted[board], view !== "default")}
+                                    {this.mapCards(cardsSorted[board].cards, view !== "default")}
                                 </div>
                             </div>
                         );
