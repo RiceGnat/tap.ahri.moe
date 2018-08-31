@@ -59,9 +59,16 @@ export default class Card extends React.Component {
         if (details && details.images[0].borderCrop) imgClasses.push("border-crop");
         if (!this.state.imgLoaded) imgClasses.push("hidden");
 
+        const useBorderless = details && (
+            details.border === "borderless" ||
+            details.border === "silver" ||
+            details.border === "white" ||
+            details.images.length > 0 && details.images[0].set === "UNH" && details.types.includes("basic")
+        );
+
         return (
             <div className={cardClasses.join(" ")} title={isGhost ? "This card is already in a different section" : ""}>
-                <div className={"frame" + (this.state.imgLoaded ? " loaded" : "") + (details && (details.border === "borderless" || details.border === "silver") ? " borderless" : "")}>
+                <div className={"frame" + (this.state.imgLoaded ? " loaded" : "") + (useBorderless ? " borderless" : "")}>
                     <div className="card-title">{details ? card.details.name : card.name}</div>
                     <div className="card-info">
                         <div className="left">{card.set && details ? details.set : card.set}&emsp;{card.language.toUpperCase()}&emsp;{card.signed ? "Signed" : ""}{card.foil ? " Foil" : ""}{card.alter ? " Alter" : ""}</div>

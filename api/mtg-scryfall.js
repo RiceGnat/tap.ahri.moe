@@ -63,7 +63,7 @@ function ExtractCardProps(body) {
         images.push({  // Front face only for now
             url: url,
             collectorNumber: cards[i].collector_number,
-            set: cards[i].set,
+            set: cards[i].set.toUpperCase(),
             language: card.lang,
             highres: cards[i].highres_image,
             multiverseId: cards[i].multiverse_ids[0]
