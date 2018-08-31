@@ -138,7 +138,7 @@ export default class DeckView extends React.Component {
             // Get boards
             boards.forEach(board => {
                 sorted[board] = {
-                    cards: main.filter(card => card.board === board)
+                    cards: cards.filter(card => card.board === board)
                 }
                 sorted[board].count = sorted[board].cards.length;
                 if (sorted[board].count > 0) sorted.showBoards = true;
