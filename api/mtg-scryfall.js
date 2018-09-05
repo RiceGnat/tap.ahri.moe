@@ -3,8 +3,9 @@ const request = require("request");
 const host = "https://api.scryfall.com";
 
 function GetCard(name, set) {
+    set = set || "";
     const query = `${host}/cards/named?exact=${encodeURIComponent(name)}&set=${set}`;
-
+    console.log(query);
     return new Promise((resolve, reject) => {
         request.get({
             url: query,
