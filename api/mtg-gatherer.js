@@ -2,12 +2,15 @@ const request = require("request");
 const $ = require("cheerio");
 const iso6391 = require("iso-639-1");
 
-var cache = {};
+var cache = {
+    lang: {},
+    cn: {}
+};
 
 function GetLanguages(multiverseid) {
     const query = `http://gatherer.wizards.com/Pages/Card/Languages.aspx?multiverseid=${multiverseid}`;
     return new Promise((resolve, reject) => {
-        if (cache[multiverseid]) return resolve(cache[multiverseid]);
+        if (cache.lang[multiverseid]) return resolve(cache.lang[multiverseid]);
 
         request.get(query, (err, resp, body) => {
             if (err || resp.statusCode !== 200) return reject(`Gatherer request failed with : ${err ? err : resp.statusCode}`);
@@ -18,27 +21,27 @@ function GetLanguages(multiverseid) {
             var $rows = $(".cardList tr.cardItem", body);
 
             if (maxPage > 0) {
-                GetNextPage(query, 1, maxPage).then(($results) => {
-                    cache[multiverseid] = ExtractMultiverseIDs($rows.add($results));
-                    resolve(cache[multiverseid]);
+                getNextPage(query, 1, maxPage).then(($results) => {
+                    cache.lang[multiverseid] = extractMultiverseIDs($rows.add($results));
+                    resolve(cache.lang[multiverseid]);
                 }, (error) => reject(error));
             }
             else {
-                cache[multiverseid] = ExtractMultiverseIDs($rows);
-                resolve(cache[multiverseid]);
+                cache.lang[multiverseid] = extractMultiverseIDs($rows);
+                resolve(cache.lang[multiverseid]);
             }
         });
     });
 }
 
-function GetNextPage(query, page, maxPage) {
+function getNextPage(query, page, maxPage) {
     return new Promise((resolve, reject) => {
         request.get(`${query}&page=${page}`, (err, resp, body) => {
             if (err || resp.statusCode !== 200) return reject(err ? err : resp.statusCode);
             
             const $rows = $(".cardList tr.cardItem", body);
 
-            if (page < maxPage) GetNextPage(query, page + 1, maxPage).then(($results) => {
+            if (page < maxPage) getNextPage(query, page + 1, maxPage).then(($results) => {
                 resolve($rows.add($results));
             }, (error) => reject(error));
             else resolve($rows);
@@ -46,7 +49,7 @@ function GetNextPage(query, page, maxPage) {
     });
 }
 
-function ExtractMultiverseIDs($rows) {
+function extractMultiverseIDs($rows) {
     var languages = {};
     $rows.each((i, row) => {
         const language = $("td:nth-child(2)", row).text().trim();
@@ -64,6 +67,21 @@ function ExtractMultiverseIDs($rows) {
     return languages;
 }
 
+function GetCollectorNumber(multiverseid) {
+    const query = `http://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=${multiverseid}`;
+    return new Promise((resolve, reject) => {
+        if (cache.cn[multiverseid]) return resolve(cache.cn[multiverseid]);
+
+        request.get(query, (err, resp, body) => {
+            if (err || resp.statusCode !== 200) return reject(`Gatherer request failed with : ${err ? err : resp.statusCode}`);
+
+            cache.cn[multiverseid] = $("[id$='CardNumberValue']", body).first().text().trim();
+            resolve(cache.cn[multiverseid]);
+        });
+    });
+}
+
 module.exports = {
-    getLanguages: GetLanguages
+    getLanguages: GetLanguages,
+    getCollectorNumber: GetCollectorNumber
 }

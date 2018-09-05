@@ -76,15 +76,15 @@ function GetDeckCards(slug) {
                 for (var i = 0; i < list.length; i++) {
                     var card = list[i];
                     card.Language = card.Language.toLowerCase();
-                    card.Printing = card.Printing.toUpperCase();
+                    card.Printing = card.Printing.toLowerCase();
             
                     if (card.Language == "") card.Language = "en";
 
                     // Correcting non-standard set codes from Tapped Out
-                    if (card.Printing == "UN3") card.Printing = "UST";
-                    else if (card.Printing == "AKHMPS") card.Printing = "MPS_AKH";
-                    else if (card.Printing == "GRV") card.Printing = "PD3";
-                    else if (card.Printing == "000" || card.Printing == "PSG") card.Printing = "PROMO";
+                    if (card.Printing == "un3") card.Printing = "ust";
+                    else if (card.Printing == "akhmps") card.Printing = "mps_akh";
+                    else if (card.Printing == "grv") card.Printing = "pd3";
+                    else if (card.Printing == "000" || card.Printing == "psg") card.Printing = "promo";
 
                     convertedList[i] = {
                         name: card.Name,

@@ -19,13 +19,13 @@ function GetCard(name, set) {
 }
 
 function Search(name, set, lang) {
-    const isPromo = set == "PROMO";
-    const isMasterpiece = set.startsWith("MPS") || set.startsWith("EXP");
+    const isPromo = set == "promo";
+    const isMasterpiece = set.startsWith("mps") || set.startsWith("exp");
     const isSetDefined = set != "";
 
     // Set up query
-    const query = `${host}/cards/search?q=!"${encodeURIComponent(name)}"+game:paper+lang:${lang}+${(isMasterpiece ? "is" : (isPromo ? "is" : (isSetDefined ? "s:" + set : "") + "+not") + ":promo+not") + ":masterpiece"}&order=released&unique=prints`;
-    
+    const query = `${host}/cards/search?q=!"${encodeURIComponent(name)}"+game:paper+lang:${lang}${(isMasterpiece ? "+is" : (isPromo ? "+is:promo" : (isSetDefined ? "+s:" + set : "")) + "+not") + ":masterpiece"}&order=released&unique=prints`;
+    console.log(query);
     return new Promise((resolve, reject) => {
         // Perform request
         request.get({
@@ -48,23 +48,31 @@ function ExtractCardProps(body) {
     var highresImageFound = false;
 
     if (body.object === "list") {
-        card = body.data[0];
+        card = body.data[0]
         cards = body.data;
     }
     else {
         card = body;
-        cards.push(card);
+        cards.push(body);
     }
+
+    const getBorder = card =>
+        card.set === "mp2" ||
+        card.set === "ust" && card.type_line.includes("Basic") ? "borderless"
+        : card.border_color;
 
     // Extract all image options
     for (var i = 0; i < cards.length; i++) {
+        // Front face only for now
         const url = cards[i].layout === "transform" ? cards[i].card_faces[0].image_uris.normal : cards[i].image_uris.normal;
         highresImageFound = highresImageFound || cards[i].highres_image;
-        images.push({  // Front face only for now
+        images.push({
             url: url,
             collectorNumber: cards[i].collector_number,
             set: cards[i].set,
-            language: card.lang,
+            language: cards[i].lang,
+            border: getBorder(cards[i]),
+            frame: cards[i].frame,
             highres: cards[i].highres_image,
             multiverseId: cards[i].multiverse_ids[0]
         });
@@ -84,21 +92,24 @@ function ExtractCardProps(body) {
         cmc: card.cmc,
         colors: card.colors,
         oracleText: card.oracle_text,
-        set: card.set.toUpperCase(),
-        setName: card.set_name,
-        border: card.set.toUpperCase() === "MP2" ? "borderless" : card.border_color,
+        set: card.set,
         language: card.lang,
+        border: getBorder(card),
+        frame: card.frame,
         images: images,
         //backImages: backs,
         //collectorNumber: card.collector_number,
         qualityImage: highresImageFound,
+        collectorNumber: card.collector_number,
         multiverseId: card.multiverse_ids[0]
     };
 }
 
+
+
 function GetMCIImage(lang, set, number, noAdjust) {
     const matches = number.match(/(\d+)([a-z]*)/);
-    const suffix = matches[2];
+    var suffix = matches[2];
             
     // If suffix specified, increment it since MCI is offset by one letter
     if (suffix !== "" && !noAdjust)
@@ -121,9 +132,9 @@ function GetMCIImage(lang, set, number, noAdjust) {
                 return;
             }
 
+            // Don't use MCI set and number
             const result = {
                 url: url,
-                collectorNumber: number,
                 language: lang,
                 highres: true,
                 borderCrop: true

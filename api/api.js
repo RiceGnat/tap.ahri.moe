@@ -1,4 +1,5 @@
 const express = require("express");
+const stable = require("stable");
 
 const tappedout = require("./mtg-tappedout");
 const mtgsdk = require("./mtg-sdk");
@@ -25,7 +26,7 @@ module.exports = express.Router()
 
 .get("/card", (req, res) => {
     const name = req.query.name.trim();
-    const set = req.query.set ? req.query.set.trim().toUpperCase() : "";
+    const set = req.query.set ? req.query.set.trim().toLowerCase() : "";
     const lang = req.query.lang && req.query.lang.trim() != "" ? req.query.lang.trim().toLowerCase() : "en";
 
     if (cache[[name, set, lang]]) return res.send(cache[[name, set, lang]]);
@@ -54,15 +55,39 @@ module.exports = express.Router()
         else {
             // Should be able to use Gatherer to find language versions for non-promo cards
             // Use this to check if variations are missing (eg Plains BFZ ja)
-            return ((lang !== "en" && set !== "PROMO") ? (
+            // Do not do this step if English fallback was already used in previous step
+            return (lang !== "en" && set !== "promo" && card.language !== "en" ? (
                 // Get English multiverse ID if current card is non-English
-                (card.language !== "en" ? scryfall.getCard(name, set) : Promise.resolve(card))
+                scryfall.getCard(name, card.set)
                 // Get language printings from Gatherer
-                .then(enCard => findGathererPrintings(enCard.multiverseId, card.set, lang, card.images))
-                // If something went wrong here, use original image set 
-                .catch(error => card.images)
+                .then(enCard => 
+                    // Get multiverse IDs for print variations
+                    gatherer.getLanguages(enCard.multiverseId)
+                    // Add placeholder images for any missing variations of the desired language
+                    .then(languages => {
+                        if (!languages[lang]) throw "Language printings not found on Gatherer";
+                        var multiverseIds = languages[lang];
+                        const existing = card.images.map(img => img.multiverseId);
+                        multiverseIds = multiverseIds.filter(multiverseId => !existing.includes(multiverseId));
+                        return Promise.all(multiverseIds.map(multiverseId => 
+                            gatherer.getCollectorNumber(multiverseId)
+                            .then(collectorNumber => ({
+                                set: card.set,
+                                language: lang,
+                                border: card.border,
+                                frame: card.frame,
+                                multiverseId: multiverseId,
+                                collectorNumber: collectorNumber
+                            }))
+                        ))
+                        .then(images => 
+                            images.concat(card.images)
+                        );
+                    })
+                )
             )
-            : (set === "PROMO" ?
+            // At this point we're probably looking for a non-English promo, assuming Scryfall has all English highres
+            : (set === "promo" ?
                 mtgsdk.getPromoCard(name)
                 .then(cards => 
                     cards.map(card => ({
@@ -71,9 +96,10 @@ module.exports = express.Router()
                         collectorNumber: card.collectorNumber
                     })).concat(card.images)
                 )
-                .catch(error => card.images)
-            // Otherwise, use original image set
-            : Promise.resolve(card.images)))
+                // Otherwise, use original image set
+                : Promise.resolve(card.images)))
+            // If something went wrong here, use original image set 
+            .catch(error => card.images)
             // Try to find other image sources
             .then(images =>
                 Promise.all(images.map(img =>
@@ -118,28 +144,33 @@ module.exports = express.Router()
     error => scryfall.getCard(name))
     // Sort card images
     .then(card => {
-        card.images.sort((a, b) => {
-            // Prioritize matching language
+        card.images = stable(card.images, (a, b) => {
+            // Prioritize matching set
+            if (a.set !== b.set) {
+                if (a.set === card.set) return -1;
+                else if (b.set === card.set) return 1;
+                else return 0;
+            }
+
+            // Then match language
             if (a.language !== b.language) {
                 if (a.language === lang) return -1;
                 else if (b.language === lang) return 1;
-                else return a.language < b.language ? -1 : 1;
+                else return 0;
             }
-            else {
-                // Then prioritize highres images
-                if (a.highres !== b.highres) {
-                    return b.highres - a.highres;
-                }
-                else {
-                    // Sort by collector number
-                    var diff = parseInt(a.collectorNumber) - parseInt(b.collectorNumber);
-                    if (diff === 0) {
-                        // Lexographically sort collector number variations (eg 250a)
-                        diff = a.collectorNumber < b.collectorNumber ? -1 : 1;
-                    }
-                    return diff;
-                }
+
+            // Then prioritize highres images
+            if (a.highres !== b.highres) {
+                return b.highres - a.highres;
             }
+
+            // Last by collector number
+            var diff = parseInt(a.collectorNumber) - parseInt(b.collectorNumber);
+            if (diff === 0) {
+                // Lexographically sort collector number variations (eg 250a)
+                diff = a.collectorNumber < b.collectorNumber ? -1 : 1;
+            }
+            return diff;
         });
         return card;
     })
@@ -154,24 +185,7 @@ module.exports = express.Router()
 });
 
 function findGathererPrintings(multiverseId, set, lang, images) {
-    // Get multiverse IDs for print variations
-    return gatherer.getLanguages(multiverseId)
-    // Add placeholder images for any missing variations of the desired language
-    .then(languages => {
-        if (!languages[lang]) throw "Language printings not found on Gatherer";
-        var multiverseIds = languages[lang];
-        if (images) {
-            const existing = images.map(img => img.multiverseId);
-            multiverseIds = multiverseIds.filter(multiverseId => !existing.includes(multiverseId));
-        }
-        return (images ? images : []).concat(
-            multiverseIds.map(multiverseId => ({
-                set: set,
-                language: lang,
-                multiverseId: multiverseId
-            }))
-        );
-    });
+    
 }
 
 function errorHandler(error, res) {
