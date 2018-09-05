@@ -116,8 +116,9 @@
         overflow: hidden;
     }
 
-    .card .frame.loaded.borderless {
+    .card .frame.loaded.borderless .border {
         background-color: rgba(0, 0, 0, 0);
+        overflow: visible;
     }
 
     .card .card {

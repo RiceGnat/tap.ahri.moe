@@ -61,7 +61,7 @@ export default class Card extends React.Component {
 
         var frameClasses = ["frame"];
         if (details && (
-            details.images[0].set === "silver" && details.images[0].frame >= 2015 ||
+            details.images[0].border === "silver" && details.images[0].frame >= 2015 ||
             details.images[0].set === "unh" && details.types.includes("basic")
             ))
             frameClasses.push("borderless");
