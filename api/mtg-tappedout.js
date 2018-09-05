@@ -84,6 +84,7 @@ function GetDeckCards(slug) {
                     if (card.Printing == "un3") card.Printing = "ust";
                     else if (card.Printing == "akhmps") card.Printing = "mps_akh";
                     else if (card.Printing == "grv") card.Printing = "pd3";
+                    else if (card.Printing == "pds") card.Printing = "h09";
                     else if (card.Printing == "000" || card.Printing == "psg") card.Printing = "promo";
 
                     convertedList[i] = {
