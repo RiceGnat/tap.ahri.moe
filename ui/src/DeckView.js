@@ -263,7 +263,7 @@ export default class DeckView extends React.Component {
 
     renderCardCategories(types, typeLabels, view, cards, cardsSorted) {
         return types.map((type, i) => {
-            if (cardsSorted["main"][view][type]) return ( 
+            if (cardsSorted["main"][view][type] && cardsSorted["main"][view][type].length > 0) return ( 
                 <div key={type} className={type + " section"}>
                     <h4>{typeLabels[i]}<span className="count">{
                         type === "other" ? cardsSorted["main"][view]["other"].length : 
