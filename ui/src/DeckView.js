@@ -138,7 +138,7 @@ export default class DeckView extends React.Component {
             // Get boards
             boards.forEach(board => {
                 sorted[board] = {
-                    cards: main.filter(card => card.board === board)
+                    cards: cards.filter(card => card.board === board)
                 }
                 sorted[board].count = sorted[board].cards.length;
                 if (sorted[board].count > 0) sorted.showBoards = true;
@@ -175,9 +175,19 @@ export default class DeckView extends React.Component {
             case "types":
                 types.forEach(type => {
                     var section = main.filter(card =>
-                        type !== "other" ? card.details && card.details.types[0] === type
+                        type !== "other" ? card.details && card.details.types.includes(type)
                         : !card.details
                     );
+
+                    if (type !== "other") {
+                        section = section.map(card => 
+                            card.details.types.length > 1 &&
+                            type !== types[Math.min(... card.details.types.map(type => types.indexOf(type)).filter(i => i > -1))] ? Object.assign({
+                                ghost: true,
+                                source: card
+                            }, card) : card
+                        )
+                    }
 
                     sorted["main"][view][type] = {
                         cards: section,
@@ -197,10 +207,18 @@ export default class DeckView extends React.Component {
                     var section = main.filter(card =>
                         type !== "other" ?
                         card.details && card.details.subtypes.length > 0 && 
-                        (card.details.subtypes[0] === "elder" ? card.details.subtypes[1] === type
-                            : card.details.subtypes[0] === type)
+                        card.details.subtypes.filter(type => type !== "elder").includes(type)
                         : !card.details || card.details.subtypes.length === 0
                     );
+
+                    if (type !== "other") {
+                        section = section.map(card => 
+                            card.details.subtypes.filter(type => type !== "elder").indexOf(type) > 0 ? Object.assign({
+                                ghost: true,
+                                source: card
+                            }, card) : card
+                        )
+                    }
 
                     sorted["main"][view][type] = {
                         cards: section,

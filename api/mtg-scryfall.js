@@ -99,7 +99,6 @@ function ExtractCardProps(body) {
         frame: card.frame,
         images: images,
         //backImages: backs,
-        //collectorNumber: card.collector_number,
         qualityImage: highresImageFound,
         collectorNumber: card.collector_number,
         multiverseId: card.multiverse_ids[0]

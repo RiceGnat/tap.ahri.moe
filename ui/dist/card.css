@@ -51,7 +51,7 @@
         bottom: 0;
         left: 0;
         right: 0;
-        opacity: 0.3;
+        opacity: 0.2;
         mix-blend-mode: overlay;
         background-image: linear-gradient(to bottom right, magenta, red, orange, yellow, lime, cyan, magenta, red);
         animation: foilshift 3s ease infinite;
@@ -99,6 +99,9 @@
         z-index: 1;
     }
 
+    .card.ghost {
+        opacity: 0.5;
+    }
 
 
 @keyframes foilshift {
