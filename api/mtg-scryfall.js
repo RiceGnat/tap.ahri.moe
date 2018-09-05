@@ -5,7 +5,6 @@ const host = "https://api.scryfall.com";
 function GetCard(name, set) {
     set = set || "";
     const query = `${host}/cards/named?exact=${encodeURIComponent(name)}&set=${set}`;
-    console.log(query);
     return new Promise((resolve, reject) => {
         request.get({
             url: query,
@@ -23,12 +22,8 @@ function Search(name, set, lang) {
     const isPromo = set == "promo";
     const isMasterpiece = set.startsWith("mps") || set.startsWith("exp");
     const isSetDefined = set != "";
-
-    // Set up query
     const query = `${host}/cards/search?q=!"${encodeURIComponent(name)}"+game:paper+lang:${lang}${(isMasterpiece ? "+is" : (isPromo ? "+is:promo" : (isSetDefined ? "+s:" + set : "")) + "+not") + ":masterpiece"}&order=released&unique=prints`;
-    console.log(query);
     return new Promise((resolve, reject) => {
-        // Perform request
         request.get({
             url: query,
             json: true

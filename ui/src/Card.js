@@ -57,25 +57,41 @@ export default class Card extends React.Component {
 
         var imgClasses = [];
         if (details && details.images[0].borderCrop) imgClasses.push("border-crop");
-        if (!this.state.imgLoaded) imgClasses.push("hidden");
+        //if (!this.state.imgLoaded) imgClasses.push("hidden");
 
-        const useBorderless = details && (
-            details.border === "borderless" ||
-            details.border === "silver" ||
-            details.border === "white" ||
-            details.images.length > 0 && details.images[0].set === "UNH" && details.types.includes("basic")
-        );
+        var frameClasses = ["frame"];
+        if (details && (
+            details.images[0].set === "silver" && details.images[0].frame >= 2015 ||
+            details.images[0].set === "unh" && details.types.includes("basic")
+            ))
+            frameClasses.push("borderless");
+        if (details && details.border !== "black")
+            frameClasses.push(details.border);
+        if (this.state.imgLoaded) frameClasses.push("loaded");
+
+        var infoLeft = [];
+        if (card.set) infoLeft.push(details ? details.set : card.set);
+        infoLeft.push(card.language);
+
+        var infoRight = [];
+        if (card.signed) infoRight.push("signed");
+        if (card.foil) infoRight.push("foil");
+        if (card.alter) infoRight.push("alter");
 
         return (
             <div className={cardClasses.join(" ")} title={isGhost ? "This card is already in a different section" : ""}>
-                <div className={"frame" + (this.state.imgLoaded ? " loaded" : "") + (useBorderless ? " borderless" : "")}>
+                <div className={frameClasses.join(" ")}>
+                    <div className="border">
+                        {details ? <img className={imgClasses.join(" ")} onLoad={this.imageLoaded} src={details.images[0].url} alt={details.printedName} /> : null}
+                    </div>
                     <div className="card-title">{details ? card.details.name : card.name}</div>
                     <div className="card-info">
-                        <div className="left">{card.set && details ? details.set : card.set}&emsp;{card.language.toUpperCase()}&emsp;{card.signed ? "Signed" : ""}{card.foil ? " Foil" : ""}{card.alter ? " Alter" : ""}</div>
-                        <div className="right"></div>
+                        <div className="left">{infoLeft.join("\u2003")}</div>
+                        <div className="right">{infoRight.join("\u2003")}</div>
                     </div>
-                    {details ? <img className={imgClasses.join(" ")} onLoad={this.imageLoaded} src={details.images[0].url} alt={details.printedName} /> : null}
                     {details && card.foil ? <div className='foil layer'></div> : null}
+                    {details && card.alter ? <div className='alter'>&#x1f58c;</div> : null}
+                    {details && card.signed ? <div className='signed'>&#x1f58a;</div> : null}
                 </div>
                 {this.props.childCard}
             </div>
