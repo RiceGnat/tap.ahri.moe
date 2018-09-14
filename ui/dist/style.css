@@ -18,20 +18,6 @@ body.modern {
     list-style: none;
 }
 
-/* Merge into modern.css in the future */
-.modern textarea {
-    padding: 2px 5px;
-    border: 0;
-    font-family: inherit;
-    font-size: inherit;
-    font-weight: inherit;
-}
-.modern.dark textarea,
-.modern .dark textarea {
-    background-color: #222222;
-    color: inherit;
-}
-
 .container {
     padding: 0 0 0 50px;
 }
