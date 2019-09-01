@@ -22,8 +22,9 @@ export default class PasteLoader extends React.Component {
 
     parseDecklist(decklist) {
         //this.props.onDeckLoaded(null);
-        var regex = /^(\d{1,3})x (.+)$/gm;
+        var regex = /^(\d{1,3})x? (.+)$/gm;
         var m = regex.exec(decklist);
+        var sideboardIndex = decklist.toLowerCase().indexOf("sideboard");
         var cards = [];
         var count = 0;
         var i = 0;
@@ -32,7 +33,7 @@ export default class PasteLoader extends React.Component {
             var name = m[2].trim();
             cards[i] = {
                 name: name,
-                board: "main",
+                board: m.index > sideboardIndex ? "side" : "main",
                 quantity: quantity,
                 set: "",
                 foil: false,

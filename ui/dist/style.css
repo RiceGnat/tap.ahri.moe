@@ -1,6 +1,4 @@
 body.modern {
-    font-family: "Segoe UI";
-    font-weight: 400;
     margin: 0;
 }
 
@@ -10,12 +8,6 @@ body.modern {
 
 .modern h4 {
     margin-bottom: 10px;
-}
-
-.modern ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
 }
 
 .container {
@@ -47,6 +39,17 @@ body.modern {
         display: inline-block;
         margin-right: 60px;
     }
+
+.deck-area ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.deck-area a {
+    font-weight: inherit;
+    text-decoration: none;
+}
 
 #controlBar {
     display: flex;
@@ -100,7 +103,6 @@ h2#deckTitle {
 
     #deckTitle a,
     #deckInfo a {
-        color: #444444;
     }
 
     #deckInfo li {

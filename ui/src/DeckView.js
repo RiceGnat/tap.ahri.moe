@@ -338,7 +338,7 @@ export default class DeckView extends React.Component {
 
             if (cardsSorted.showBoards) {
                 boards.forEach((board, i) => {
-                    if (cardsSorted[board])
+                    if (cardsSorted[board] && cardsSorted[board].count > 0)
                         sections.push(
                             <div key="board" className={board + " section"}>
                                 <h3>{boardLabels[i]}<span className="count">{cardsSorted[board].count}</span></h3>
