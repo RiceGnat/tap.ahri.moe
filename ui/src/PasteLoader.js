@@ -33,7 +33,7 @@ export default class PasteLoader extends React.Component {
             var name = m[2].trim();
             cards[i] = {
                 name: name,
-                board: m.index > sideboardIndex ? "side" : "main",
+                board: sideboardIndex > -1 && m.index > sideboardIndex ? "side" : "main",
                 quantity: quantity,
                 set: "",
                 foil: false,
