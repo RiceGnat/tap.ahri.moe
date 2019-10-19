@@ -79,6 +79,8 @@ function GetDeckCards(slug) {
                     card.Printing = card.Printing.toLowerCase();
             
                     if (card.Language == "") card.Language = "en";
+                    // MTG language code uses JP
+                    else if (card.Language == "ja") card.Language = "jp";
 
                     // Correcting non-standard set codes from Tapped Out
                     if (card.Printing == "un3") card.Printing = "ust";

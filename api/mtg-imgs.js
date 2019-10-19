@@ -10,7 +10,6 @@ function GetImage(options) {
     const name = options.name.trim();
     const set = options.set ? options.set.trim().toUpperCase() : "";
     var lang = options.lang && options.lang.trim() != "" ? options.lang.trim().toLowerCase() : "en";
-    if (lang === "ja") lang = "jp";
 
     return MakeRequest(name, set, lang);
 }

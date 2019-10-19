@@ -110,7 +110,7 @@ function GetMCIImage(lang, set, number, noAdjust) {
     if (suffix !== "" && !noAdjust)
         suffix = String.fromCharCode(suffix.charCodeAt() + 1);
 
-    const url = `https://img.scryfall.com/mci/scans/${lang.toLowerCase() === "ja" ? "jp" : lang}/${set}/${matches[1]}${suffix}.jpg`;
+    const url = `https://img.scryfall.com/mci/scans/${lang}/${set}/${matches[1]}${suffix}.jpg`;
     return new Promise((resolve, reject) => {
         request({ 
             method: "HEAD",
