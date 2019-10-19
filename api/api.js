@@ -182,11 +182,7 @@ module.exports = express.Router()
     // At this point if we don't have a card something went wrong, so give up and return an error response
     error => errorHandler(error, res)
     );
-});
-
-function findGathererPrintings(multiverseId, set, lang, images) {
-    
-}
+}); 
 
 function errorHandler(error, res) {
     res.status(500).send({
