@@ -3,12 +3,14 @@ import { getPrintedLanguageCode, safeJoin, getCardName } from './utils';
 
 export default ({card, options, image, simple}) => {
 	const [flipped, setFlipped] = useState(false);
-	const isTransform = () => card.layout ==='transform';
+	const isTransform = () => card && card.layout ==='transform';
 	const getCardFace = (face = 0) => isTransform() ? card.card_faces[face] : card;
 
 	const faces = [];
-	if (card) faces.push(getCardFace());
-	if (isTransform()) faces.push(getCardFace(1));
+	if (card) {
+		faces.push(getCardFace());
+		if (isTransform()) faces.push(getCardFace(1));
+	}
 
 	return <div className={safeJoin(' ', 'card', options.ghost && 'ghost', flipped && 'flipped')}
 		onClick={isTransform() ? e => setFlipped(!flipped) : undefined}>
