@@ -33,6 +33,7 @@ export default ({ decks, onAction: on, selected }) => {
 			}
 			else return deck;
 		}
+		else return null;
 	}
 
 	const importDeck = async () => {
