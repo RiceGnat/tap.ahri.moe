@@ -1,6 +1,6 @@
 import ServiceClient from './ServiceClient';
 
-const HOST = 'http://localhost:8081/api';
+const HOST = '/api';
 
 export default class {
 	constructor() {
