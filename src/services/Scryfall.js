@@ -40,7 +40,7 @@ export default class {
 					.map(({ set, set_name }) => ({ code: set, name: set_name }))
 					.filter((set, i, sets) => sets.findIndex(({ code }) => code === set.code) === i)
 					.map(set => ({ ...set, cards: cards.filter(card => card.set === set.code) }));
-				sets.default = sorted.find(({ promo }) => !promo);
+				sets.default = sorted.find(({ promo }) => !promo) || sorted[0];
 				return sets;
 			});
 
