@@ -88,18 +88,20 @@ export default class extends Component {
 		let nonce = Date.now();
 		this.onSearch.nonce = nonce;
 
+		const trimmed = query.trim();
+
 		this.setState({
 			query,
 			searchTimer: setTimeout(async () => {
 				try {
-					const autocomplete = await this.scryfall.autocomplete(query);
+					const autocomplete = await this.scryfall.autocomplete(trimmed);
 
 					if (this.onSearch.nonce === nonce) {
 						this.setState({ autocomplete });
 
 						// trigger card lookup automatically if the query matches a card name
-						if (autocomplete.find(value => value.toLowerCase() === query.toLowerCase())) {
-							this.findCard(query);
+						if (autocomplete.find(value => value.toLowerCase() === trimmed.toLowerCase())) {
+							this.findCard(trimmed);
 						}
 					}
 				} catch (error) { this.scryfall.error(error); }
@@ -271,7 +273,7 @@ export default class extends Component {
 											</ul>
 										}
 										<input type="text" value={this.state.query} onChange={e => {
-											const query = e.target.value.trim();
+											const query = e.target.value;
 											if (query.length >= 2) this.onSearch(query);
 											else this.setState({ query });
 										}} />
