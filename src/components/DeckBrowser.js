@@ -106,7 +106,9 @@ export default ({ decks, onAction: on, selected }) => {
 						</div>
 					</li>)
 						: <li className="empty">
-							<span className="tip">No decks</span>
+							<div className="container">
+								<span className="tip">No decks</span>
+							</div>
 						</li>
 					}
 				</ul>
