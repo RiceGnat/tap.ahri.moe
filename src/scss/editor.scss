@@ -1,0 +1,208 @@
+.editor {
+  white-space: nowrap;
+
+  textarea {
+    height: 5.25em;
+  }
+
+  table {
+    table-layout: fixed;
+    width: 100%;
+
+    th, td {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    th {
+      text-align: left;
+    }
+  }
+
+  .loading {
+    margin-left: 1em;
+  }
+
+  .title {
+    flex: 1 0 auto;
+  }
+  
+  .creator {
+    flex: 0 1 10em;
+  }
+
+  button.close {
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 0;
+    margin: 0;
+    padding: 0;
+    width: 3em;
+    height: 3em;
+    line-height: 2em;
+    background: none;
+
+    span {
+      font-size: 300%;
+      font-weight: 200;
+    }
+
+    &:focus {
+      outline: 0;
+    }
+  }
+
+  .card-details {
+    .search {
+      input {
+        width: 100%;
+      }
+    
+      .autocomplete {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 1.75em;
+        list-style: none;
+        margin: 0;
+        border: 1px solid var(--primary-alt);
+        padding: 0.5em;
+        background-color: var(--primary);
+        z-index: 1;
+    
+        li {
+          cursor: pointer;
+          max-width: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+    }
+
+    .buttons {
+      padding-right: 1em;
+    }
+  
+    .count {
+      width: 4em;
+    }
+  }
+
+  .card-preview {
+    font-size: 75%;
+
+    .card {
+      margin: 0 auto;
+    }
+  }
+
+  input[type=reset] {
+    float: left;
+  }
+  
+  .metadata {
+    justify-content: space-between;
+  }
+
+  .deck-preview {
+    .nav {
+      li {
+        a {
+          text-decoration: none;
+          font-size: inherit;
+          font-weight: inherit;
+          border-bottom: 0.0625rem solid;
+        }
+
+        .tip {
+          margin-left: 0.5em;
+        }
+
+        &:not(.current) a {
+          border-bottom-color: transparent;
+        }
+      } 
+    }
+    
+    .thumbnail {
+      padding: 0.5rem 0;
+      width: 2.5rem;
+
+      .card {
+        font-size: 15%;
+        margin: 0 auto;
+      }
+    }
+
+    .name {
+      width: 100%;
+
+      .tip {
+        text-transform: uppercase;
+      }
+
+      .commander {
+        margin-left: 1em;
+      }
+
+      .options {
+        margin-left: 1em;
+        font-variant: small-caps;
+      }
+    }
+
+    .count {
+      width: 3em;
+
+      input {
+        width: 100%;
+        text-align: right;
+      }
+    }
+
+    .lang {
+      width: 10em;
+
+      select {
+        width: 100%;
+      }
+    }
+
+    .delete {
+      padding: 0;
+      width: 2em;
+
+      button {
+        display: block;
+        margin: 0;
+        padding: 0;
+        outline: 0;
+        width: 2em;
+        height: 2em;
+        line-height: 2em;
+        background: none;
+
+        span {
+          position: relative;
+          font-size: 200%;
+          bottom: 0.1em;
+        }
+      }
+    }
+
+    tr:not(:hover) {
+      .count input:not(:focus) {
+        border-color: transparent;
+      }
+
+      .lang select:not(:focus) {
+        border-color: transparent;
+      }
+
+      .delete button {
+        opacity: 0;
+      }
+    }
+  }
+}

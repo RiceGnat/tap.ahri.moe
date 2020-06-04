@@ -1,0 +1,159 @@
+.card {
+  position: relative;
+  width: 15em;
+  height: 21em;
+  transform-style: preserve-3d;
+  transition: transform linear 500ms;
+
+  .frame {
+    border-radius: 0.85em;
+    overflow: hidden;
+    box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.4);
+    background-color: var(--primary);
+    
+    &, * {
+      backface-visibility: hidden;
+    }
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      filter: contrast(105%);
+      pointer-events: none;
+    }
+
+    &:not(:first-child) {
+      position: absolute;
+      top: 0;
+      transform: rotateY(180deg);
+    }
+  }
+
+  &.flipped {
+    transform: rotateY(180deg);
+  }
+
+  @keyframes foilshift {
+      0% {
+          background-position: 0% 50%;
+      }
+  
+      50% {
+          background-position: 100% 50%;
+      }
+  
+      100% {
+          background-position: 0% 50%;
+      }
+  }
+
+  .foil {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    opacity: 0.2;
+    mix-blend-mode: overlay;
+    background-image: linear-gradient(to bottom right, red, white, red, orange, yellow, lime, cyan, magenta, white, red);
+    animation: foilshift 3s ease infinite;
+    background-size: 150% 100%;
+    transition: opacity linear .5s;
+  }
+
+  .signed,
+  .alter {
+      display: block;
+      position: absolute;
+      right: 0.75em;
+      font-size: 200%;
+      font-weight: 600;
+      text-align: center;
+  }
+
+  .signed {
+      bottom: 0.75em;
+      color: black;
+      text-shadow: 0 0 1px white, 0 0 2px white, 0 0 3px white;
+  }
+
+  .alter {
+      top: 1em;
+      color: white;
+      text-shadow: 0 0 1px black, 0 0 2px black, 0 0 3px black;
+  }
+  
+  .name,
+  .duplicate,
+  .info {
+      position: absolute;
+      left: 0;
+      right: 0;
+      padding: 0.5em 1em;
+      overflow: hidden;
+      white-space: nowrap;
+      color: white;
+      background: rgba(0, 0, 0, 0.75);
+  }
+  
+  .name {
+    top: 0;
+    transform-origin: top;
+    font-weight: 200;
+    text-overflow: ellipsis;
+
+    .tip {
+      color: rgba(255, 255, 255, 0.75);
+    }
+  }
+
+  .duplicate {
+    top: 50%;
+    text-align: center;
+  }
+
+  .info {
+    bottom: 0;
+    font-size: 75%;
+    transform-origin: bottom;
+    text-transform: uppercase;
+    justify-content: space-between;
+
+    .options {
+      font-variant: small-caps;
+    }
+  }
+
+  &:hover {
+    .name, .info, .duplicate {
+      transition-delay: 1s;
+    }
+  }
+
+  &:not(:hover) {
+    .name, .info {
+      transform: scaleY(0);
+      opacity: 0;
+    }
+
+    .duplicate {
+      opacity: 0;
+    }
+  }
+}
+
+.stackable {
+  position: relative;
+  z-index: 0;
+
+  .anchor:hover + .stackable {
+    &, & .stackable{
+      z-index: -1;
+    }
+  }
+  
+  & > .anchor:not(:last-child) {
+    max-height: 2em;
+  }
+} 

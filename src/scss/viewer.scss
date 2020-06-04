@@ -1,0 +1,65 @@
+.viewer {
+  header {
+    margin-bottom: 1em;
+
+    .title, .format, .creator {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .description {
+      white-space: pre-wrap;
+    }
+
+    .view-controls {
+      & > div:not(:first-child) {
+        margin-left: 1em;
+      }
+    }
+  }
+
+  section, header {
+    padding: 0 1em;
+
+    .count {
+      margin-left: 0.5em;
+    }
+  }
+
+  section {
+    .group-container {
+      margin: 0 -2em;
+  
+      .group {
+        margin: 0 2em 2em;
+      }
+    }
+
+    .card-container {
+      margin: 0 -0.25em;
+  
+      .card {
+        margin: 0.25em;
+
+        &.ghost {
+          .frame {
+            transition: box-shadow ease-out 100ms;
+          }
+        }
+
+        &:not(:hover).ghost {
+          img {
+            opacity: 0.7;
+            transition-duration: 500ms;
+          }
+          
+          .frame {
+            box-shadow: none;
+            transition: box-shadow ease-out 500ms;
+          }
+        }
+      }
+    }
+  }
+}

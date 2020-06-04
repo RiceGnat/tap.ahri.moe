@@ -1,0 +1,67 @@
+.browser {
+  input[type=text],
+  textarea {
+    width: 100%;
+  }
+
+  textarea {
+    height: 3em;
+    transition: height 200ms ease-out !important;
+
+    &:focus {
+      height: 21em;
+    }
+  }
+
+  .editor-btn {
+    width: 100%;
+  }
+
+  .deck-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: solid;
+    border-width: 0.0625em 0;
+
+    li {
+      white-space: nowrap;
+
+      .container {
+        padding: 0.5em 1em;
+      }
+
+      &.selected {
+        .container {
+          border-left: 0.25em solid;
+        }
+
+        .title {
+          font-weight: 400;
+        }
+      }
+
+      .flex {
+        align-items: baseline;
+      }
+
+      .title, .creator {
+        margin-right: 1em;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      
+      &:not(:last-child) {
+        border-bottom: 0.0625em solid var(--primary-alt);
+      }
+
+      &:not(.empty) {
+        cursor: pointer;
+
+        &:hover {
+          background-color: var(--hover);
+        }
+      }
+    }
+  }
+}

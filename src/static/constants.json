@@ -1,0 +1,137 @@
+{
+  "languages": [
+    {
+      "name": "English",
+      "code": "en"
+    },
+    {
+      "name": "Spanish",
+      "code": "es",
+      "printed": "SP"
+    },
+    {
+      "name": "French",
+      "code": "fr"
+    },
+    {
+      "name": "German",
+      "code": "de"
+    },
+    {
+      "name": "Italian",
+      "code": "it"
+    },
+    {
+      "name": "Portuguese",
+      "code": "pt"
+    },
+    {
+      "name": "Japanese",
+      "code": "ja",
+      "printed": "JP"
+    },
+    {
+      "name": "Korean",
+      "code": "ko",
+      "printed": "KR"
+    },
+    {
+      "name": "Russian",
+      "code": "ru"
+    },
+    {
+      "name": "Simplified Chinese",
+      "code": "zhs",
+      "printed": "CS"
+    },
+    {
+      "name": "Traditional Chinese",
+      "code": "zht",
+      "printed": "CT"
+    },
+    {
+      "name": "Hebrew",
+      "code": "he",
+      "special": true
+    },
+    {
+      "name": "Latin",
+      "code": "la",
+      "special": true
+    },
+    {
+      "name": "Ancient Greek",
+      "code": "grc",
+      "special": true
+    },
+    {
+      "name": "Arabic",
+      "code": "ar",
+      "special": true
+    },
+    {
+      "name": "Sanskrit",
+      "code": "sa",
+      "special": true
+    },
+    {
+      "name": "Phyrexian",
+      "code": "px",
+      "special": true
+    }
+  ],
+  "boards": [
+    {
+      "name": "Main",
+      "value": "main"
+    },
+    {
+      "name": "Sideboard",
+      "value": "side"
+    },
+    {
+      "name": "Extras",
+      "value": "extra"
+    }
+  ],
+  "colors": [
+    {
+      "name": "White",
+      "value": "W"
+    },
+    {
+      "name": "Blue",
+      "value": "U"
+    },
+    {
+      "name": "Black",
+      "value": "B"
+    },
+    {
+      "name": "Red",
+      "value": "R"
+    },
+    {
+      "name": "Green",
+      "value": "G"
+    },
+    {
+      "name": "Colorless",
+      "value": "c"
+    }
+  ],
+  "types": [  
+    "Creature",
+    "Sorcery",
+    "Instant",
+    "Artifact",
+    "Enchantment",
+    "Planeswalker",
+    "Land",
+    "Conspiracy",
+    "Phenomenon",
+    "Plane",
+    "Scheme",
+    "Vanguard"
+  ]
+}

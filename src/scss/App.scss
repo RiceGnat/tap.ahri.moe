@@ -1,0 +1,143 @@
+html, body, #app {
+  height: 100%;
+  margin: 0;
+}
+
+section {
+  margin-bottom: 2em;
+}
+
+.root {
+  height: 100%;
+}
+
+.page {
+  padding: 1em;
+  max-height: 100%;
+  overflow-y: auto;
+
+  button.top {
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 0;
+    margin: 0;
+    padding: 0;
+    width: 3em;
+    height: 3em;
+    line-height: 2em;
+    background: none;
+  
+    span {
+      font-size: 300%;
+      font-weight: 200;
+    }
+  
+    &:focus {
+      outline: 0;
+    }
+  }
+}
+
+.row {
+  margin-bottom: 1em;
+}
+
+.text-right {
+  text-align: right;
+}
+
+input[type=number] {
+  padding-right: 0;
+}
+
+.flex.wrap {
+  flex-wrap: wrap;
+}
+
+.capitalize {
+  text-transform: capitalize;
+}
+
+@keyframes slowblink {
+    0% {
+        opacity: 0.2;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+
+    100% {
+        opacity: 0.2;
+    }
+}
+
+.loading {
+    animation: slowblink 1.5s linear infinite;
+}
+
+.hidden {
+  display: none;
+}
+
+ul.horizontal {
+  display: flex;
+  list-style: none;
+  margin: 0 -1em;
+  padding: 0;
+
+  li {
+    margin: 0 1em;
+  }
+}
+
+.field {
+  margin: 0 1em 0.5em 0;
+
+  input,
+  textarea,
+  select {
+    width: 100%;
+  }
+
+  &.number {
+    min-width: 5em;
+  }
+}
+
+.gutter-right {
+  margin-right: -1em;
+}
+
+.buttons {
+  justify-content: space-between;
+  flex-direction: row-reverse;
+}
+
+.collapsible {
+  overflow: hidden;
+  transition: flex 200ms ease-out;
+
+  &.collapsed {
+    flex: 0;
+    transition-duration: 100ms;
+  }
+}
+
+.browser-container {
+  flex: 0 0 22.4em;
+}
+
+.editor-container {
+  flex: 0 0 43em;
+}
+
+.viewer {
+  flex: 1;
+}
+
+@import './card.scss';
+@import './viewer.scss';
+@import './browser.scss';
+@import './editor.scss';
