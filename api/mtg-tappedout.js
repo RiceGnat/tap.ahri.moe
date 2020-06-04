@@ -35,7 +35,7 @@ function GetDeckInfo(slug) {
                     url: `${host}${deckRoot}${slug}`,
                     creator: author,
                     userpage: `${host}${userRoot}${author}`,
-                    format: $('tr:contains(Format) > td', body).last().text().toLowerCase,
+                    format: $('tr:contains(Format) > td', body).last().text().toLowerCase(),
 				};
 				
 				// Adjust format names
