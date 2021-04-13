@@ -43,7 +43,7 @@ export default ({ decks, onAction: on, selected }) => {
 				// Scryfall collection endpoint only returns English cards
 				let cards = (await scryfall.collection(deck.cards
 					.map(card => card.set ? { name: card.name, set: card.set } : { name: card.name }))
-				).reduce((o, card) => ({ ...o, [`${card.layout === 'transform' ? card.card_faces[0].name : card.name}${card.set}`]: card }), {});
+				).reduce((o, card) => ({ ...o, [`${card.card_faces ? card.card_faces[0].name : card.name}${card.set}`]: card }), {});
 
 				const missing = [];
 

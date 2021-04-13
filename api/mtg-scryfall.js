@@ -59,8 +59,8 @@ function ExtractCardProps(body) {
 
     // Extract all image options
     for (var i = 0; i < cards.length; i++) {
-        // Front face only for now
-        const url = cards[i].layout === "transform" ? cards[i].card_faces[0].image_uris.normal : cards[i].image_uris.normal;
+		// Front face only for now
+        const url = cards[i].card_faces ? cards[i].card_faces[0].image_uris.normal : cards[i].image_uris.normal;
         highresImageFound = highresImageFound || cards[i].highres_image;
         images.push({
             url: url,
@@ -76,7 +76,7 @@ function ExtractCardProps(body) {
     }
 
     // Extract relevant attributes into return object
-    const type_line = (card.layout === "transform" ? card.card_faces[0].type_line : card.type_line).toLowerCase().split("—");
+    const type_line = (cards[i].card_faces ? card.card_faces[0].type_line : card.type_line).toLowerCase().split("—");
     const types = type_line[0].trim().split(" ");
     const subtypes = type_line[1] ? type_line[1].trim().split(" ") : [];
     return result = {
