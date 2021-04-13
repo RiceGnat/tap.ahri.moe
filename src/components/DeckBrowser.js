@@ -10,7 +10,6 @@ export default ({ decks, onAction: on, selected }) => {
 	const [importMode, setImportMode] = useState('tappedout');
 	const [importData, setImportData] = useState('');
 
-
 	const scryfall = new Scryfall();
 	const api = new Api();
 
@@ -50,7 +49,7 @@ export default ({ decks, onAction: on, selected }) => {
 
 				deck.cards = (await Promise.all(deck.cards.map(async card => {
 					let data = cards[`${card.name}${card.set}`];
-
+					
 					// Non-English and promo cards have to be searched individually
 					if (card.lang !== 'en' || (card.tappedOutProps && (card.tappedOutProps.promo || card.tappedOutProps.prerelease))) {
 						data = await scryfall.findCard(card);
@@ -63,6 +62,7 @@ export default ({ decks, onAction: on, selected }) => {
 
 					return {
 						...card,
+						board: card.board == 'main' || card.board == 'side' ? card.board : 'extra',
 						set: data.set,
 						hash: getCardHash(data, card),
 						data
