@@ -2,6 +2,8 @@ const request = require("request");
 
 const host = "https://api.scryfall.com";
 
+const isDfc = card => ["transform", "modal_dfc"].includes(card.layout);
+
 function GetCard(name, set) {
     set = set || "";
     const query = `${host}/cards/named?exact=${encodeURIComponent(name)}&set=${set}`;
@@ -60,7 +62,7 @@ function ExtractCardProps(body) {
     // Extract all image options
     for (var i = 0; i < cards.length; i++) {
         // Front face only for now
-        const url = cards[i].layout === "transform" ? cards[i].card_faces[0].image_uris.normal : cards[i].image_uris.normal;
+        const url = isDfc(cards[i]) ? cards[i].card_faces[0].image_uris.normal : cards[i].image_uris.normal;
         highresImageFound = highresImageFound || cards[i].highres_image;
         images.push({
             url: url,
@@ -76,7 +78,7 @@ function ExtractCardProps(body) {
     }
 
     // Extract relevant attributes into return object
-    const type_line = (card.layout === "transform" ? card.card_faces[0].type_line : card.type_line).toLowerCase().split("—");
+    const type_line = (isDfc(card) ? card.card_faces[0].type_line : card.type_line).toLowerCase().split("—");
     const types = type_line[0].trim().split(" ");
     const subtypes = type_line[1] ? type_line[1].trim().split(" ") : [];
     return result = {
@@ -91,7 +93,7 @@ function ExtractCardProps(body) {
         set: card.set,
         language: card.lang,
         border: getBorder(card),
-        frame: card.frame,
+		frame: card.frame,
         images: images,
         //backImages: backs,
         qualityImage: highresImageFound,
