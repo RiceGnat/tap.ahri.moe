@@ -28,12 +28,12 @@ export default class {
 				has_more ? data.concat(await getAll(next_page)) : data
 			);
 
-		this.autocomplete = query => client.get(`/cards/autocomplete?q=${query}`)
+		this.autocomplete = query => client.get(`/cards/autocomplete?q=${encodeURIComponent(query)}`)
 			.then(({ data }) => data);
 
-		this.named = query => client.get(`/cards/named?exact=${query}`);
+		this.named = query => client.get(`/cards/named?exact=${encodeURIComponent(query)}`);
 
-		this.setsFor = name => getAll(`/cards/search?q=!"${name}"+game:paper&unique=prints&include_variations=true`)
+		this.setsFor = name => getAll(`/cards/search?q=!"${encodeURIComponent(name)}"+game:paper&unique=prints&include_variations=true`)
 			.then(cards => {
 				const sorted = cards.sort(sortCards);
 				const sets = sorted
@@ -44,7 +44,7 @@ export default class {
 				return sets;
 			});
 
-		this.languagesFor = (name, set) => getAll(`/cards/search?q=!"${name}"+e:${set}+game:paper&unique=prints&include_variations=true&include_multilingual=true`)
+		this.languagesFor = (name, set) => getAll(`/cards/search?q=!"${encodeURIComponent(name)}"+e:${set}+game:paper&unique=prints&include_variations=true&include_multilingual=true`)
 			.then(cards => cards
 				.sort(sortCards)
 				.reduce((o, card) => ({ ...o, [card.lang]: [...(o[card.lang] || []), card] }), {})
@@ -62,7 +62,7 @@ export default class {
 		};
 
 		this.findCard = ({ name, set, lang, tappedOutProps: { promo, prerelease } = {} }) => getAll(`/cards/search?q=${
-			safeJoin('', `!"${name}"`, set && `+e:${set}`, promo && `+is:promo`, prerelease && `+is:prerelease`)
+			safeJoin('', `!"${encodeURIComponent(name)}"`, set && `+e:${set}`, promo && `+is:promo`, prerelease && `+is:prerelease`)
 			}+game:paper&unique=prints&include_multilingual=true`).then(cards => cards.find(card => card.lang === lang) || cards[0]);
 
 		this.cancel = () => client.cancel();

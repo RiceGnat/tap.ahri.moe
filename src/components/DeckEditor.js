@@ -267,7 +267,7 @@ export default class extends Component {
 												{this.state.autocomplete.map((value, i) =>
 													<li key={i} onClick={e => {
 														e.stopPropagation();
-														this.onSuggestionSelected(e.target.innerHTML);
+														this.onSuggestionSelected(e.target.childNodes[0].nodeValue);
 													}}>{value}</li>
 												)}
 											</ul>
