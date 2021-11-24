@@ -28,9 +28,10 @@ export default ({ deck }) => {
 				}
 			}
 			else if (groupType === 'subtype') {
+				const front = card.data.type_line.split('//')[0];
 				return {
 					...card,
-					subtypes: card.data.type_line.includes('—') ? card.data.type_line.split('—')[1].trim().split(' ') : []
+					subtypes: front.includes('—') ? front.split('—')[1].trim().split(' ') : []
 				}
 			}
 			else return card;

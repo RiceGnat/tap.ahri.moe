@@ -36,7 +36,8 @@ export default class extends Component {
 			signed: false,
 			alter: false,
 			commander: false,
-			board: 'main'
+			board: 'main',
+			editingImage: null
 		};
 	}
 
@@ -222,6 +223,14 @@ export default class extends Component {
 		this.setDeckProperty('cards', cards);
 	}
 
+	setCardProperty = (card, key, value) => {
+		if (value) {
+			card[key] = value;
+		}
+		else delete card[key];
+		this.setDeckProperty('cards', this.state.deck.cards);
+	}
+
 	render = () => <div className="editor page">
 		<div className="container">
 			<h4 className="noselect">Deck editor</h4>
@@ -392,14 +401,37 @@ export default class extends Component {
 					<tbody>
 						{this.state.deck.cards.filter(({ board }) => board === this.state.board).map((card) => <tr key={card.hash}>
 							<td className="thumbnail noselect">
-								<Card simple card={card.data} options={card} />
+								<div onContextMenu={e => {
+									e.preventDefault();
+									this.setState({ editingImage: this.state.editingImage === card.hash ? null : card.hash });
+								}}>
+									<Card simple card={card.data} options={card} />
+								</div>
 							</td>
 							<td className="name">
-								{getCardName(card.data)}{card.commander && <span className="commander tip">commander</span>}<br />
-								<span className="tip">
-									{[card.data.set, getPrintedLanguageCode(card.data.lang), card.data.collector_number].join(' · ')}
-									<span className="options">{['foil', 'signed', 'alter'].filter(n => card[n]).join(' ')}</span>
-								</span>
+								<div>
+									{getCardName(card.data)}{card.commander && <span className="commander tip">commander</span>}<br />
+									<span className="tip">
+										{[card.data.set, getPrintedLanguageCode(card.data.lang), card.data.collector_number].join(' · ')}
+										<span className="options">{['foil', 'signed', 'alter'].filter(n => card[n]).join(' ')}</span>
+									</span>
+								</div>
+								{this.state.editingImage === card.hash &&
+									<div className="image-editor">
+										<div>
+											<input type="text" placeholder="Image override" value={card.image} onChange={e => this.setCardProperty(card, 'image', e.target.value)} />
+											&emsp;
+											<input type="number" placeholder="Border" value={card.imageBorder} onChange={e => this.setCardProperty(card, 'imageBorder', e.target.value)} />
+										</div>
+										{Array.isArray(card.data.card_faces) && 
+											<div>
+												<input type="text" placeholder="Back override" value={card.imageBack} onChange={e => this.setCardProperty(card, 'imageBack', e.target.value)} />
+												&emsp;
+												<input type="number" placeholder="Border" value={card.imageBackBorder} onChange={e => this.setCardProperty(card, 'imageBackBorder', e.target.value)} />
+											</div>
+										}
+									</div>
+								}
 							</td>
 							<td className="count">
 								<input type="number" value={card.count} onChange={e => {

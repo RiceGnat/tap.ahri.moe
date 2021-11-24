@@ -10,7 +10,7 @@ export default class extends Component {
 
 		this.state = {
 			deck: null,
-			decks: this.loadDecksFromStorage().map(compressed => JSON.parse(window.LZString.decompressFromBase64(compressed))),
+			decks: this.loadDecksFromStorage().map(compressed => compressed.startsWith("{") ? JSON.parse(compressed) : JSON.parse(window.LZString.decompressFromBase64(compressed))),
 			showEditor: false
 		}
 	}

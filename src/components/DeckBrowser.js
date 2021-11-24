@@ -62,7 +62,7 @@ export default ({ decks, onAction: on, selected }) => {
 
 					return {
 						...card,
-						board: card.board == 'main' || card.board == 'side' ? card.board : 'extra',
+						board: card.board === 'main' || card.board === 'side' ? card.board : 'extra',
 						set: data.set,
 						hash: getCardHash(data, card),
 						data

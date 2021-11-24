@@ -4,19 +4,19 @@
   "private": true,
   "main": "server.js",
   "dependencies": {
-    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/jest-dom": "^5.15.1",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
     "axios": "^0.21.2",
-    "cheerio": "^1.0.0-rc.2",
-    "csv-parse": "^4.4.6",
+    "cheerio": "^1.0.0-rc.10",
+    "csv-parse": "^4.16.3",
     "express": "^4.17.1",
-    "iso-639-1": "^2.1.0",
+    "iso-639-1": "^2.1.10",
     "mtgsdk": "^0.3.0",
-    "node-sass": "^4.14.1",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-scripts": "3.4.1",
+    "node-sass": "^6.0.1",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
+    "react-scripts": "^4.0.3",
     "request": "^2.88.0",
     "stable": "^0.1.8"
   },
@@ -28,7 +28,10 @@
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
-    "extends": "react-app"
+    "extends": "react-app",
+    "rules": {
+        "import/no-anonymous-default-export": "off"
+    }
   },
   "browserslist": {
     "production": [

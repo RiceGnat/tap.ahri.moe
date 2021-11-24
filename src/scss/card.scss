@@ -9,7 +9,7 @@
     border-radius: 0.85em;
     overflow: hidden;
     box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.4);
-    background-color: var(--primary);
+    background-color: black;
     
     &, * {
       backface-visibility: hidden;
@@ -21,6 +21,7 @@
       height: 100%;
       filter: contrast(105%);
       pointer-events: none;
+      box-sizing: border-box;
     }
 
     &:not(:first-child) {

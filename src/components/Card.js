@@ -1,7 +1,7 @@
 import React, { Fragment, useState } from 'react';
 import { getPrintedLanguageCode, safeJoin, getCardName } from './utils';
 
-export default ({card, options, image, simple}) => {
+export default ({card, options, simple}) => {
 	const [flipped, setFlipped] = useState(false);
 	const isTransform = () => card && ["transform", "modal_dfc"].includes(card.layout);
 	const getCardFace = (face = 0) => isTransform() ? card.card_faces[face] : card;
@@ -12,11 +12,14 @@ export default ({card, options, image, simple}) => {
 		if (isTransform()) faces.push(getCardFace(1));
 	}
 
+	const imageOverrides = [options.image, options.imageBack];
+	const imageBorders = [options.imageBorder, options.imageBackBorder];
+
 	return <div className={safeJoin(' ', 'card', options.ghost && 'ghost', flipped && 'flipped')}
 		onClick={isTransform() ? e => setFlipped(!flipped) : undefined}>
 		{faces.map((face, i) => <div key={i} className="frame container">
-			<img src={face.image_uris[image || 'normal']}
-				alt={card.name} />
+			<img src={imageOverrides[i] || face.image_uris['normal']}
+				alt={card.name} style={{ border: `${imageBorders[i] ? `${imageBorders[i] / 16}em` : '0'} solid black` }} />
 			{options.foil && <div className="foil"></div>}
 			{!simple &&
 				<Fragment>
