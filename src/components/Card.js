@@ -3,7 +3,7 @@ import { getPrintedLanguageCode, safeJoin, getCardName } from './utils';
 
 export default ({card, options, simple}) => {
 	const [flipped, setFlipped] = useState(false);
-	const isTransform = () => card && ["transform", "modal_dfc"].includes(card.layout);
+	const isTransform = () => card && ["transform", "modal_dfc", "reversible_card"].includes(card.layout);
 	const getCardFace = (face = 0) => isTransform() ? card.card_faces[face] : card;
 
 	const faces = [];
