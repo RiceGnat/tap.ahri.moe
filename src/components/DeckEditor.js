@@ -363,10 +363,16 @@ export default class extends Component {
 					</div>
 				}
 				<div className="flex buttons row">
-					<input type="submit" value="Save deck" onClick={e => {
-						e.preventDefault();
-						if (typeof this.props.onSave === 'function') this.props.onSave(this.state.deck);
-					}} />
+					<div className="flex">
+						<Checkbox right size="large" label="Save to database" id="database"
+							checked={this.state.deck.db}
+							onChange={e => this.setDeckProperty('db', e.target.checked)}
+							disabled={!this.props.config.db.available} />
+						<input type="submit" value="Save deck" onClick={e => {
+							e.preventDefault();
+							if (typeof this.props.onSave === 'function') this.props.onSave(this.state.deck);
+						}} />
+					</div>
 					<input type="reset" value="Reset changes" onClick={e => {
 						e.preventDefault();
 						this.setState({ deck: this.getInitialDeck() })

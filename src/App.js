@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
 import DeckEditor from "./components/DeckEditor";
-import './scss/App.scss';
 import DeckBrowser from './components/DeckBrowser';
 import DeckViewer from './components/DeckViewer';
+import Database from './services/Database';
+import './scss/App.scss';
+
+const db = new Database();
 
 export default class extends Component {
 	constructor(props) {
@@ -10,62 +13,129 @@ export default class extends Component {
 
 		this.state = {
 			deck: null,
-			decks: this.loadDecksFromStorage().map(compressed => compressed.startsWith("{") ? JSON.parse(compressed) : JSON.parse(window.LZString.decompressFromBase64(compressed))),
-			showEditor: false
+			decks: [],
+			showEditor: false,
+			config: JSON.parse(localStorage.getItem('config')) || {
+				db: {
+					key: null,
+					user: null,
+					available: false
+				}
+			}
 		}
 	}
 
-	loadDecksFromStorage = () => JSON.parse(localStorage.getItem('decks')) || [];
+	componentDidMount = async () => this.setState({ decks: await this.loadDecks() });
+
+	loadDecks = async () =>
+		[
+			...this.loadDecksFromStorage(),
+			...await this.loadDecksFromDatabase()
+		].sort((a, b) => a.id - b.id);
+
+	loadDecksFromStorage = () => JSON.parse(localStorage.getItem('decks')).map(compressed => ({ ...this.decompressDeck(compressed), db: false })) || [];
+
+	loadDecksFromDatabase = async () => {
+		try {
+			if (this.state.config.db.available)
+				return (await db.getDecks(this.state.config.db)).map(deck => ({ ...deck, db: true }));
+			else return [];
+		}
+		catch (err) {
+			console.log('Error fetching decks from database:');
+			console.log(err);
+			return [];
+		}
+	}
+	
+	decompressDeck = compressed => compressed.startsWith("{") ? JSON.parse(compressed) : JSON.parse(window.LZString.decompressFromBase64(compressed));
 
 	compressDeck = deck => {
 		const stripped = {
 			...deck,
-			cards: deck.cards.map(card => ({
-				...card,
-				name: null,
-				hash: null,
-				data: {
-					id: card.data.id
-				}
-			}))
+			cards: deck.cards.map(card => {
+					const c = {
+						...card,
+						data: {
+							id: card.data.id
+						}
+					};
+					delete c.name;
+					delete c.hash;
+					return c;
+				})
 		}
+
+		delete stripped.db;
+
 		return [window.LZString.compressToBase64(JSON.stringify(stripped)), stripped];
 	}
 
 	newDeck = () => this.setState({ deck: null, showEditor: true });
 
-	saveDeck = deck => {
+	saveDeck = async deck => {
 		if (!deck.id) deck.id = Date.now();
-
-		const { decks } = this.state;
-		const existing = decks.findIndex(({ id }) => id === deck.id);
+		console.log(deck);
+		const isDb = deck.db;
 		const [compressed, stripped] = this.compressDeck(deck);
 		const storage = this.loadDecksFromStorage();
+		const existing = storage.findIndex(({ id }) => id === deck.id);
 
-		if (existing > -1) {
-			decks[existing] = stripped;
-			storage[existing] = compressed;
+		if (isDb) {
+			try {
+				await db.putDeck(stripped, this.state.config.db);
+				if (existing > -1) {
+					storage.splice(existing, 1);
+					localStorage.setItem('decks', JSON.stringify(storage));
+				}
+			}
+			catch (err) {
+				console.log('Error occurred saving deck');
+				console.log(err);
+				alert('An error occured while saving the deck to the database! Changes may not have been saved.');
+			}
 		}
 		else {
-			decks.push(stripped);
-			storage.push(compressed);
-		}
+			if (existing > -1) {
+				storage[existing] = compressed;
+			}
+			else {
+				storage.push(compressed);
+			}
 
-		this.setState({ deck, decks });
-		localStorage.setItem('decks', JSON.stringify(storage));
-	}
+			if (this.state.config.db.available) {
+				await db.deleteDeck(deck.id, this.state.config.db);
+			}
 
-	deleteDeck = () => {
-		const decks = this.state.decks;
-		const storage = this.loadDecksFromStorage();
-		const index = decks.findIndex(({ id }) => id === this.state.deck.id);
-
-		if (index >= 0) {
-			decks.splice(index, 1);
-			storage.splice(index, 1);
-			this.setState({ deck: null, decks });
 			localStorage.setItem('decks', JSON.stringify(storage));
 		}
+
+		this.setState({ deck, decks: await this.loadDecks() });
+	}
+
+	deleteDeck = async () => {
+		const isDb = this.state.deck.db;
+		
+		if (isDb) {
+			try {
+				await db.deleteDeck(this.state.deck.id, this.state.config.db);
+			}
+			catch (err) {
+				console.log('Error occurred deleting deck');
+				console.log(err);
+			}
+		}
+		else {
+			const storage = this.loadDecksFromStorage();
+			const index = storage.findIndex(({ id }) => id === this.state.deck.id);
+	
+			if (index >= 0) {
+				storage.splice(index, 1);
+				localStorage.setItem('decks', JSON.stringify(storage));
+			}
+		}
+
+		this.setState({ deck: null, decks: await this.loadDecks() });
 	}
 
 	clearDecks = () => {
@@ -75,6 +145,24 @@ export default class extends Component {
 
 	toggleEditor = () => this.setState({ showEditor: !this.state.showEditor });
 
+	setConfig = async config => {
+		const newConfig = {
+			...this.state.config,
+			...config,
+			db: {
+				...this.state.config.db,
+				...config.db
+			}
+		};
+
+		if (newConfig.db.key !== this.state.config.db.key) {
+			newConfig.db.available = await db.check(newConfig.db);
+		}
+		
+		this.setState({ decks: await this.loadDecks(), config: newConfig });
+		localStorage.setItem('config', JSON.stringify(newConfig));
+	}
+
 	browserActionHandler = (action, ...args) => {
 		switch (action) {
 			case 'new': return this.newDeck();
@@ -82,6 +170,7 @@ export default class extends Component {
 			case 'edit': return this.toggleEditor();
 			case 'delete': return this.deleteDeck();
 			case 'clear': return this.clearDecks();
+			case 'config': return this.setConfig(args[0]);
 			default: return;
 		}
 	}
@@ -90,10 +179,12 @@ export default class extends Component {
 		<div className="root container flex">
 			<div className="dark collapsible browser-container">
 				<DeckBrowser decks={this.state.decks} selected={this.state.deck && this.state.deck.id}
+					config={this.state.config}
 					onAction={this.browserActionHandler} />
 			</div>
 			<div className={`dark collapsible editor-container${this.state.showEditor ? '' : ' collapsed'}`}>
 				{this.state.showEditor && <DeckEditor deck={this.state.deck}
+					config={this.state.config}
 					onSave={this.saveDeck}
 					onClose={() => this.setState({ showEditor: false })} />
 				}

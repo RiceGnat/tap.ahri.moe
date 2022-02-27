@@ -4,7 +4,7 @@ create table if not exists `users` (
 ) engine=InnoDB default charset=utf8;
 
 create table if not exists `decks` (
-    id int(13) not null,
+    id bigint not null,
     userId int(13) not null,
     title varchar(255),
     format varchar(255),

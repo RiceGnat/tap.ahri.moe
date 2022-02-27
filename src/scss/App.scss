@@ -113,6 +113,11 @@ ul.horizontal {
 .buttons {
   justify-content: space-between;
   flex-direction: row-reverse;
+
+  .field {
+    margin-top: auto;
+    margin-bottom: auto;
+  }
 }
 
 .collapsible {
