@@ -33,7 +33,7 @@ export default class extends Component {
 			...await this.loadDecksFromDatabase()
 		].sort((a, b) => a.id - b.id);
 
-	loadDecksFromStorage = () => JSON.parse(localStorage.getItem('decks')).map(compressed => ({ ...this.decompressDeck(compressed), db: false })) || [];
+	loadDecksFromStorage = () => (JSON.parse(localStorage.getItem('decks')) || []).map(compressed => ({ ...this.decompressDeck(compressed), db: false }));
 
 	loadDecksFromDatabase = async () => {
 		try {
