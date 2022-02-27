@@ -159,7 +159,7 @@ export default class extends Component {
 			newConfig.db.available = await db.check(newConfig.db);
 		}
 		
-		this.setState({ decks: await this.loadDecks(), config: newConfig });
+		this.setState({ config: newConfig }, async () => this.setState({ decks: await this.loadDecks() }));
 		localStorage.setItem('config', JSON.stringify(newConfig));
 	}
 
