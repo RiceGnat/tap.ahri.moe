@@ -2,11 +2,10 @@ import React, { useState } from 'react';
 import { countCards, getCardHash } from './utils';
 import RadioGroup from './RadioGroup';
 import Scryfall from '../services/Scryfall';
-import Field from './Field';
 
 const confirmDelete = () => window.confirm('This cannot be undone! Are you sure?');
 
-export default ({ decks, onAction: on, selected, config }) => {
+export default ({ decks, onAction: on, selected }) => {
 	const [importMode, setImportMode] = useState('tappedout');
 	const [importData, setImportData] = useState('');
 
@@ -34,7 +33,7 @@ export default ({ decks, onAction: on, selected, config }) => {
 		else return null;
 	}
 
-	return <div className={`browser page`}>
+	return <div className="browser page">
 		<div className="container">
 			<h4 className="noselect">Decks</h4>
 			<button type="button" className="top noselect" onClick={_ => on('new')}>
@@ -104,18 +103,6 @@ export default ({ decks, onAction: on, selected, config }) => {
 							<input disabled type="submit" value="Load"/>
 						</div>
 					</form>
-			</div>
-			<div>
-				<h5>Database</h5>
-				<div className="flex gutter-right">
-					<Field label="Key">
-						<input type="text" value={config.db.key} onChange={e => on('config', { db: { key: e.target.value } })} />
-						<div className="tip">Database {config.db.available ? 'available' : 'unavailable'}</div>
-					</Field>
-					<Field label="User">
-						<input type="text" value={config.db.user} onChange={e => on('config', { db: { user: e.target.value } })} />
-					</Field>
-				</div>
 			</div>
 		</div>
 	</div>;

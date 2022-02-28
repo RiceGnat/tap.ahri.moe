@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import DeckEditor from "./components/DeckEditor";
 import DeckBrowser from './components/DeckBrowser';
+import DeckEditor from './components/DeckEditor';
 import DeckViewer from './components/DeckViewer';
+import Settings from './components/Settings';
 import Database from './services/Database';
 import './scss/App.scss';
 
@@ -15,12 +16,16 @@ export default class extends Component {
 			deck: null,
 			decks: [],
 			showEditor: false,
-			config: JSON.parse(localStorage.getItem('config')) || {
+			config: {
+				viewer: {
+					animateFoil: true
+				},
 				db: {
 					key: null,
 					user: null,
 					available: false
-				}
+				},
+				...(JSON.parse(localStorage.getItem('config')) || {})
 			}
 		}
 	}
@@ -147,8 +152,10 @@ export default class extends Component {
 
 	setConfig = async config => {
 		const newConfig = {
-			...this.state.config,
-			...config,
+			viewer: {
+				...this.state.config.viewer,
+				...config.viewer
+			},
 			db: {
 				...this.state.config.db,
 				...config.db
@@ -163,14 +170,13 @@ export default class extends Component {
 		localStorage.setItem('config', JSON.stringify(newConfig));
 	}
 
-	browserActionHandler = (action, ...args) => {
+	actionHandler = (action, ...args) => {
 		switch (action) {
 			case 'new': return this.newDeck();
 			case 'load': return this.setState({ deck: args[0] }, () => console.log(this.state.deck));
 			case 'edit': return this.toggleEditor();
 			case 'delete': return this.deleteDeck();
 			case 'clear': return this.clearDecks();
-			case 'config': return this.setConfig(args[0]);
 			default: return;
 		}
 	}
@@ -179,8 +185,9 @@ export default class extends Component {
 		<div className="root container flex">
 			<div className="dark collapsible browser-container">
 				<DeckBrowser decks={this.state.decks} selected={this.state.deck && this.state.deck.id}
-					config={this.state.config}
-					onAction={this.browserActionHandler} />
+					onAction={this.actionHandler} />
+				<Settings config={this.state.config}
+					onChange={this.setConfig} />
 			</div>
 			<div className={`dark collapsible editor-container${this.state.showEditor ? '' : ' collapsed'}`}>
 				{this.state.showEditor && <DeckEditor deck={this.state.deck}
@@ -189,6 +196,6 @@ export default class extends Component {
 					onClose={() => this.setState({ showEditor: false })} />
 				}
 			</div>
-			{this.state.deck && <DeckViewer deck={this.state.deck} />}
+			{this.state.deck && <DeckViewer deck={this.state.deck} config={this.state.config.viewer} />}
 		</div>
 }

@@ -60,9 +60,12 @@
     opacity: 0.2;
     mix-blend-mode: overlay;
     background-image: linear-gradient(to bottom right, red, white, red, orange, yellow, lime, cyan, magenta, white, red);
-    animation: foilshift 5s ease infinite;
     background-size: 150% 100%;
     transition: opacity linear .5s;
+
+    &.animated {
+      animation: foilshift 5s ease infinite;
+    }
   }
 
   .signed,

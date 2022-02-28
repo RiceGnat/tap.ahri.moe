@@ -4,7 +4,7 @@ import Stackable from './Stackable';
 import { countCards } from './utils';
 import { boards, colors, types } from '../static/constants.json';
 
-export default ({ deck }) => {
+export default ({ deck, config}) => {
 	const [sortType, setSortType] = useState('name');
 	const [groupType, setGroupType] = useState('type');
 
@@ -126,7 +126,7 @@ export default ({ deck }) => {
 				<section className="commander noselect">
 					<h4>Commander</h4>
 					<div className="card-container flex wrap">
-						{commander.map(({ data: card, ...options }, i) => <Card key={`${options.hash}${i}`} card={card} options={options} />)}
+						{commander.map(({ data: card, ...options }, i) => <Card key={`${options.hash}${i}`} card={card} options={options} animateFoil={config.animateFoil} />)}
 					</div>
 				</section>
 			}
@@ -140,7 +140,7 @@ export default ({ deck }) => {
 							{name && <h4>{name}<span className="count tip">{count}</span></h4>}
 							<div className="card-container flex wrap">
 								{stacks.map(stack => stack.reduce((previous, { data: card, ...options }) =>
-									<Stackable key={options.key} child={previous}><Card card={card} options={options} /></Stackable>, undefined))}
+									<Stackable key={options.key} child={previous}><Card card={card} options={options} animateFoil={config.animateFoil} /></Stackable>, undefined))}
 							</div>
 						</div>)}
 					</div>
