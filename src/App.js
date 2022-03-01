@@ -38,7 +38,7 @@ export default class extends Component {
 			...await this.loadDecksFromDatabase()
 		].sort((a, b) => a.id - b.id);
 
-	loadDecksFromStorage = () => (JSON.parse(localStorage.getItem('decks')) || []).map(deck => ({ ...(deck.cards /* temp */ ? deck : this.decompressDeck(deck.compressed || deck)), db: false }));
+	loadDecksFromStorage = () => (JSON.parse(localStorage.getItem('decks')) || []).map(deck => ({ ...this.decompressDeck(deck.compressed), db: false }));
 
 	loadDecksFromDatabase = async () => {
 		try {
@@ -53,7 +53,7 @@ export default class extends Component {
 		}
 	}
 	
-	decompressDeck = compressed => compressed.startsWith("{") ? JSON.parse(compressed) : JSON.parse(window.LZString.decompressFromBase64(compressed));
+	decompressDeck = compressed => JSON.parse(window.LZString.decompressFromBase64(compressed));
 
 	compressDeck = deck => {
 		const stripped = {
@@ -83,8 +83,8 @@ export default class extends Component {
 		
 		const isDb = deck.db;
 		const [compressed, stripped] = this.compressDeck(deck);
-		const storage = this.loadDecksFromStorage(); // change later after storage converted
-		const existing = this.state.decks.findIndex(({ id }) => id === deck.id);
+		const storage = JSON.parse(localStorage.getItem('decks')) || [];
+		const existing = storage.findIndex(({ id }) => id === deck.id);
 
 		if (isDb) {
 			try {
@@ -131,7 +131,7 @@ export default class extends Component {
 			}
 		}
 		else {
-			const storage = this.loadDecksFromStorage();
+			const storage = JSON.parse(localStorage.getItem('decks')) || [];
 			const index = storage.findIndex(({ id }) => id === this.state.deck.id);
 	
 			if (index >= 0) {
@@ -143,9 +143,9 @@ export default class extends Component {
 		this.setState({ deck: null, decks: await this.loadDecks() });
 	}
 
-	clearDecks = () => {
-		this.setState({ decks: [] })
+	clearDecks = async () => {
 		localStorage.setItem('decks', '[]');
+		this.setState({ decks: await this.loadDecks() });
 	}
 
 	toggleEditor = () => this.setState({ showEditor: !this.state.showEditor });
