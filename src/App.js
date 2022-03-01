@@ -38,7 +38,7 @@ export default class extends Component {
 			...await this.loadDecksFromDatabase()
 		].sort((a, b) => a.id - b.id);
 
-	loadDecksFromStorage = () => (JSON.parse(localStorage.getItem('decks')) || []).map(compressed => ({ ...this.decompressDeck(compressed), db: false }));
+	loadDecksFromStorage = () => (JSON.parse(localStorage.getItem('decks')) || []).map(deck => ({ ...this.decompressDeck(deck.compressed || deck), db: false }));
 
 	loadDecksFromDatabase = async () => {
 		try {
@@ -80,11 +80,11 @@ export default class extends Component {
 
 	saveDeck = async deck => {
 		if (!deck.id) deck.id = Date.now();
-		console.log(deck);
+		
 		const isDb = deck.db;
 		const [compressed, stripped] = this.compressDeck(deck);
-		const storage = this.loadDecksFromStorage();
-		const existing = storage.findIndex(({ id }) => id === deck.id);
+		const storage = this.loadDecksFromStorage(); // change later after storage converted
+		const existing = this.state.decks.findIndex(({ id }) => id === deck.id);
 
 		if (isDb) {
 			try {
@@ -102,10 +102,10 @@ export default class extends Component {
 		}
 		else {
 			if (existing > -1) {
-				storage[existing] = compressed;
+				storage[existing] = { id: deck.id, compressed };
 			}
 			else {
-				storage.push(compressed);
+				storage.push({ id: deck.id, compressed });
 			}
 
 			if (this.state.config.db.available) {

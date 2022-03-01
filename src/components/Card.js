@@ -20,7 +20,7 @@ export default ({card, options, simple, animateFoil}) => {
 		{faces.map((face, i) => <div key={i} className="frame container">
 			<img src={imageOverrides[i] || face.image_uris['normal']}
 				alt={card.name} style={{ border: `${imageBorders[i] ? `${imageBorders[i] / 16}em` : '0'} solid black` }} />
-			{options.foil && <div className={`foil${(animateFoil ? ' animated' : '')}`}></div>}
+			{options.foil && <div className={safeJoin(' ', 'foil', animateFoil && 'animated')}></div>}
 			{!simple &&
 				<Fragment>
 					<div className="name">

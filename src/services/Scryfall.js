@@ -61,6 +61,8 @@ export default class {
 			return cards;
 		};
 
+		this.card = async (set, number, lang) => client.get(`/cards/${set}/${number}/${lang ? lang : ''}`);
+
 		this.findCard = ({ name, set, lang, tappedOutProps: { promo, prerelease } = {} }) => getAll(`/cards/search?q=${
 			safeJoin('', `!"${encodeURIComponent(name)}"`, set && `+e:${set}`, promo && `+is:promo`, prerelease && `+is:prerelease`)
 			}+game:paper&unique=prints&include_multilingual=true`).then(cards => cards.find(card => card.lang === lang) || cards[0]);
