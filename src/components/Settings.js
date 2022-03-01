@@ -3,9 +3,9 @@ import Checkbox from './Checkbox';
 import Field from './Field';
 
 export default ({ onChange, config }) => 
-<div className="settings page">
-    <div className="container">
-        <h4 className="noselect">Settings</h4>
+<div className="settings flex">
+    <h4 className="noselect">Settings</h4>
+    <div className="collapsible container">
         <fieldset className="row">
             <legend className="noselect">Deck view</legend>
             <Checkbox right size="large" label="Animate foils" id="animateFoil"

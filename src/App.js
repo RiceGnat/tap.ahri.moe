@@ -183,11 +183,13 @@ export default class extends Component {
 
 	render = () =>
 		<div className="root container flex">
-			<div className="dark collapsible browser-container">
-				<DeckBrowser decks={this.state.decks} selected={this.state.deck && this.state.deck.id}
-					onAction={this.actionHandler} />
-				<Settings config={this.state.config}
-					onChange={this.setConfig} />
+			<div className="dark collapsible browser-container container">
+				<div className="page">
+					<DeckBrowser decks={this.state.decks} selected={this.state.deck && this.state.deck.id}
+						onAction={this.actionHandler} />
+					<Settings config={this.state.config}
+						onChange={this.setConfig} />
+				</div>
 			</div>
 			<div className={`dark collapsible editor-container${this.state.showEditor ? '' : ' collapsed'}`}>
 				{this.state.showEditor && <DeckEditor deck={this.state.deck}

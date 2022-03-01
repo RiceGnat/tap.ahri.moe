@@ -29,7 +29,7 @@ export default ({ decks, onAction: on, selected }) => {
 		else return null;
 	};
 
-	return <div className="browser page">
+	return <div className="browser">
 		<div className="container">
 			<h4 className="noselect">Decks</h4>
 			<button type="button" className="top noselect" onClick={_ => on('new')}>

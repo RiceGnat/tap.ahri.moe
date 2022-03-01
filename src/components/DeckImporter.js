@@ -73,6 +73,9 @@ export default ({ onAction: on }) => {
 			return o;
 		}, {}));
 
+		if (failures.length > 0)
+			alert(`Failed to load the following cards:\n${failures.join('\n')}`);
+
 		on('load', { cards });
 	};
 
