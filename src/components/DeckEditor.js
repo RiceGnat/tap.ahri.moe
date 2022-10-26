@@ -190,7 +190,9 @@ export default class extends Component {
 		this.setState({ card: this.state.languages[this.state.card.set].data[this.state.card.lang].find(card => card.collector_number === number) });
 	}
 
-	getFoilValue = () => this.state.card !== null && this.state.card.foil && (!this.state.card.nonfoil || this.state.foil);
+	hasFoil = card => card.finishes.includes('foil') || card.finishes.includes('etched');
+	hasNonFoil = card => card.finishes.includes('nonfoil');
+	getFoilValue = () => this.state.card !== null && this.hasFoil(this.state.card) && (!this.hasNonFoil(this.state.card) || this.state.foil);
 
 	addCard = () => {
 		const hash = getCardHash(this.state.card, {
@@ -330,7 +332,7 @@ export default class extends Component {
 								<Checkbox right size="large" label="Foil" id="foil"
 									checked={this.getFoilValue()}
 									onChange={e => this.setState({ foil: e.target.checked })}
-									disabled={!this.state.card || (this.state.card.foil ? !this.state.card.nonfoil : this.state.card.nonfoil)} />
+									disabled={!this.state.card || !this.hasFoil(this.state.card) || !this.hasNonFoil(this.state.card)} />
 								<Checkbox right size="large" label="Signed" id="signed"
 									checked={this.state.signed}
 									onChange={e => this.setState({ signed: e.target.checked })}
